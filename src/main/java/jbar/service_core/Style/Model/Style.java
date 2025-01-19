@@ -3,11 +3,13 @@ package jbar.service_core.Style.Model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "style")
+
+@Table(name="style")
 public class Style {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer styleId;
+
 
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
@@ -59,4 +61,5 @@ public class Style {
     public void setStatus(Boolean status) {
         this.status = status;
     }
+
 }

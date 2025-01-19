@@ -1,11 +1,12 @@
 package jbar.service_core.Sell.Model;
-
 import jakarta.persistence.*;
+
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sell")
+
 public class Sell {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -85,4 +86,5 @@ public class Sell {
     public void setStatus(Boolean status) {
         this.status = status;
     }
+
 }

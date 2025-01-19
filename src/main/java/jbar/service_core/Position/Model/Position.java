@@ -1,13 +1,16 @@
 package jbar.service_core.Position.Model;
-
 import jakarta.persistence.*;
+
+
 
 @Entity
 @Table(name = "position")
+
 public class Position {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer positionId;
+
 
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
@@ -59,4 +62,5 @@ public class Position {
     public void setStatus(Boolean status) {
         this.status = status;
     }
+
 }
