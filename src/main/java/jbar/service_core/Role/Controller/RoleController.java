@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/role")
 public class RoleController {
 
-    private final jbar.service_core.Role.Service.RoleService roleService;
+    private final jbar.service_core.Role.Controller.RoleService roleService;
 
     @Autowired
-    public RoleController(jbar.service_core.Role.Service.RoleService roleService) {
+    public RoleController(jbar.service_core.Role.Controller.RoleService roleService) {
         this.roleService = roleService;
     }
 

@@ -1,4 +1,4 @@
-package jbar.service_core.Role.Service;
+package jbar.service_core.Role.Controller;
 
 import jbar.service_core.Role.Model.Role;
 import jbar.service_core.Role.Model.RoleDTO;

@@ -1,10 +1,8 @@
-package jbar.service_core.Product.Model;
-
+package jbar.service_core.Route.Model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {
-
+public interface RouteRepository extends JpaRepository<Route, Integer> {
 }

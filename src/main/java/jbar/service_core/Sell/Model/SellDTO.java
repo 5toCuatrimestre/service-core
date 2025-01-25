@@ -1,17 +1,13 @@
 package jbar.service_core.Sell.Model;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 
 public class SellDTO {
-    @NotNull(message = "Error with sell ID")
-    private Integer sellId;
-
-    @NotBlank(message = "Error with product name")
-    private String product;
+    @NotNull(message = "Error with product ID")
+    private Integer productId;
 
     @NotNull(message = "Error with quantity")
     @Positive(message = "Quantity must be positive")
@@ -24,34 +20,27 @@ public class SellDTO {
     @NotNull(message = "Error with sell date")
     private LocalDateTime sellDate;
 
+    @NotNull(message = "Status is required")
     private Boolean status;
 
     public SellDTO() {
     }
 
-    public SellDTO(Integer sellId, String product, Integer quantity, Double totalPrice, LocalDateTime sellDate, Boolean status) {
-        this.sellId = sellId;
-        this.product = product;
+    public SellDTO(Integer productId, Integer quantity, Double totalPrice, LocalDateTime sellDate, Boolean status) {
+        this.productId = productId;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.sellDate = sellDate;
         this.status = status;
     }
 
-    public Integer getSellId() {
-        return sellId;
+    // Getters y Setters
+    public Integer getProductId() {
+        return productId;
     }
 
-    public void setSellId(Integer sellId) {
-        this.sellId = sellId;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public Integer getQuantity() {

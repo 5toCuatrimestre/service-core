@@ -1,5 +1,7 @@
 package jbar.service_core.Sell.Controller;
 
+import jbar.service_core.Product.Model.Product;
+import jbar.service_core.Product.Model.ProductRepository;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Sell.Model.SellDTO;
 import jbar.service_core.Sell.Model.SellRepository;
@@ -19,10 +21,12 @@ import java.util.Optional;
 public class SellService {
     private final Logger log = LoggerFactory.getLogger(SellService.class);
     private final SellRepository sellRepository;
+    private final ProductRepository productRepository;
 
     @Autowired
-    public SellService(SellRepository sellRepository) {
+    public SellService(SellRepository sellRepository, ProductRepository productRepository) {
         this.sellRepository = sellRepository;
+        this.productRepository = productRepository;
     }
 
     public ResponseEntity<Message> findAll() {
@@ -43,34 +47,63 @@ public class SellService {
     }
 
     public ResponseEntity<Message> create(SellDTO sellDTO) {
-        Sell sell = new Sell();
-        sell.setProduct(sellDTO.getProduct());
-        sell.setQuantity(sellDTO.getQuantity());
-        sell.setTotalPrice(sellDTO.getTotalPrice());
-        sell.setSellDate(sellDTO.getSellDate());
-        sell.setStatus(sellDTO.getStatus());
-        sellRepository.save(sell);
-        log.info("Sell created successfully: {}", sell);
-        return new ResponseEntity<>(new Message(sell, "Sell created", TypesResponse.SUCCESS), HttpStatus.CREATED);
-    }
+        try {
+            // Buscar el producto por su ID
+            Optional<Product> product = productRepository.findById(sellDTO.getProductId());
+            if (product.isEmpty()) {
+                log.warn("Product with id {} not found", sellDTO.getProductId());
+                return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
 
-    public ResponseEntity<Message> update(Integer id, SellDTO sellDTO) {
-        Optional<Sell> existingSell = sellRepository.findById(id);
-        if (existingSell.isPresent()) {
-            Sell sell = existingSell.get();
-            sell.setProduct(sellDTO.getProduct());
+            // Crear la entidad Sell
+            Sell sell = new Sell();
+            sell.setProduct(product.get()); // Asignar el objeto Product
             sell.setQuantity(sellDTO.getQuantity());
             sell.setTotalPrice(sellDTO.getTotalPrice());
             sell.setSellDate(sellDTO.getSellDate());
             sell.setStatus(sellDTO.getStatus());
             sellRepository.save(sell);
-            log.info("Sell with id {} updated successfully", id);
-            return new ResponseEntity<>(new Message(sell, "Sell updated", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("Sell with id {} not found for update", id);
-            return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+
+            log.info("Sell created successfully: {}", sell);
+            return new ResponseEntity<>(new Message(sell, "Sell created", TypesResponse.SUCCESS), HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error("Error creating sell: {}", e.getMessage());
+            return new ResponseEntity<>(new Message(null, "Error creating sell", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+    public ResponseEntity<Message> update(Integer id, SellDTO sellDTO) {
+        try {
+            Optional<Sell> existingSell = sellRepository.findById(id);
+            if (existingSell.isEmpty()) {
+                log.warn("Sell with id {} not found", id);
+                return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            Optional<Product> product = productRepository.findById(sellDTO.getProductId());
+            if (product.isEmpty()) {
+                log.warn("Product with id {} not found", sellDTO.getProductId());
+                return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            Sell sell = existingSell.get();
+            sell.setProduct(product.get()); // Asignar el objeto Product
+            sell.setQuantity(sellDTO.getQuantity());
+            sell.setTotalPrice(sellDTO.getTotalPrice());
+            sell.setSellDate(sellDTO.getSellDate());
+            sell.setStatus(sellDTO.getStatus());
+            sellRepository.save(sell);
+
+            log.info("Sell with id {} updated successfully", id);
+            return new ResponseEntity<>(new Message(sell, "Sell updated", TypesResponse.SUCCESS), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error updating sell with id {}: {}", id, e.getMessage());
+            return new ResponseEntity<>(new Message(null, "Error updating sell", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     public ResponseEntity<Message> delete(Integer id) {
         Optional<Sell> sell = sellRepository.findById(id);

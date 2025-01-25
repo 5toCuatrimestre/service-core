@@ -1,36 +1,39 @@
 package jbar.service_core.Sell.Model;
-import jakarta.persistence.*;
 
+import jakarta.persistence.*;
+import jbar.service_core.Product.Model.Product;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sell")
-
 public class Sell {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sellId;
 
-    @Column(name = "product", columnDefinition = "VARCHAR(100)", nullable = false)
-    private String product;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "totalPrice", nullable = false)
+    @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
-    @Column(name = "sellDate", nullable = false)
+    @Column(name = "sell_date", nullable = false)
     private LocalDateTime sellDate;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    // Constructor por defecto
     public Sell() {
     }
 
-    public Sell(Integer sellId, String product, Integer quantity, Double totalPrice, LocalDateTime sellDate, Boolean status) {
+    // Constructor con parámetros
+    public Sell(Integer sellId, Product product, Integer quantity, Double totalPrice, LocalDateTime sellDate, Boolean status) {
         this.sellId = sellId;
         this.product = product;
         this.quantity = quantity;
@@ -39,6 +42,7 @@ public class Sell {
         this.status = status;
     }
 
+    // Getters y Setters
     public Integer getSellId() {
         return sellId;
     }
@@ -47,11 +51,11 @@ public class Sell {
         this.sellId = sellId;
     }
 
-    public String getProduct() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(String product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 
@@ -86,5 +90,4 @@ public class Sell {
     public void setStatus(Boolean status) {
         this.status = status;
     }
-
 }

@@ -1,16 +1,17 @@
 package jbar.service_core.Position.Model;
+
 import jakarta.persistence.*;
+import jbar.service_core.Position_Site.Service.PositionSite;
+import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 
-
+import java.util.List;
 
 @Entity
 @Table(name = "position")
-
 public class Position {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer positionId;
-
 
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
@@ -20,6 +21,12 @@ public class Position {
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
+
+    @OneToMany(mappedBy = "position")
+    private List<PositionSite> positionSites;
+
+    @OneToMany(mappedBy = "position")
+    private List<RoutePositionSiteUser> routePositionSiteUsers;
 
     public Position() {
     }
@@ -63,4 +70,19 @@ public class Position {
         this.status = status;
     }
 
+    public List<PositionSite> getPositionSites() {
+        return positionSites;
+    }
+
+    public void setPositionSites(List<PositionSite> positionSites) {
+        this.positionSites = positionSites;
+    }
+
+    public List<RoutePositionSiteUser> getRoutePositionSiteUsers() {
+        return routePositionSiteUsers;
+    }
+
+    public void setRoutePositionSiteUsers(List<RoutePositionSiteUser> routePositionSiteUsers) {
+        this.routePositionSiteUsers = routePositionSiteUsers;
+    }
 }
