@@ -1,15 +1,16 @@
 package jbar.service_core.Style.Model;
 
 import jakarta.persistence.*;
+import jbar.service_core.Company_Style.Model.CompanyStyle;
+
+import java.util.List;
 
 @Entity
-
-@Table(name="style")
+@Table(name = "style")
 public class Style {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer styleId;
-
 
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
@@ -19,6 +20,9 @@ public class Style {
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
+
+    @OneToMany(mappedBy = "style")
+    private List<CompanyStyle> companyStyles;
 
     public Style() {
     }
@@ -62,4 +66,11 @@ public class Style {
         this.status = status;
     }
 
+    public List<CompanyStyle> getCompanyStyles() {
+        return companyStyles;
+    }
+
+    public void setCompanyStyles(List<CompanyStyle> companyStyles) {
+        this.companyStyles = companyStyles;
+    }
 }

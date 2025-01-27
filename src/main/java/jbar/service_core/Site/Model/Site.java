@@ -1,12 +1,14 @@
 package jbar.service_core.Site.Model;
+
 import jakarta.persistence.*;
+import jbar.service_core.Company.Model.Company;
+import jbar.service_core.Position_Site.Service.PositionSite;
+import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 
-
-
+import java.util.List;
 
 @Entity
-@Table(name="site")
-
+@Table(name = "site")
 public class Site {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,22 +17,36 @@ public class Site {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "location", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "location", columnDefinition = "VARCHAR(255)")
     private String location;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PositionSite> positionSites;
+
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoutePositionSiteUser> routePositionSiteUsers;
+
+    // Constructor vacío
     public Site() {
     }
 
-    public Site(Integer siteId, String name, String location, Boolean status) {
+    // Constructor con todos los campos
+    public Site(Integer siteId, String name, String location, Boolean status, Company company) {
         this.siteId = siteId;
         this.name = name;
         this.location = location;
         this.status = status;
+        this.company = company;
     }
 
+    // Getters y setters
     public Integer getSiteId() {
         return siteId;
     }
@@ -63,4 +79,27 @@ public class Site {
         this.status = status;
     }
 
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    public List<PositionSite> getPositionSites() {
+        return positionSites;
+    }
+
+    public void setPositionSites(List<PositionSite> positionSites) {
+        this.positionSites = positionSites;
+    }
+
+    public List<RoutePositionSiteUser> getRoutePositionSiteUsers() {
+        return routePositionSiteUsers;
+    }
+
+    public void setRoutePositionSiteUsers(List<RoutePositionSiteUser> routePositionSiteUsers) {
+        this.routePositionSiteUsers = routePositionSiteUsers;
+    }
 }

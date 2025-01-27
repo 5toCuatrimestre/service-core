@@ -1,25 +1,28 @@
 package jbar.service_core.Company.Model;
+
 import jakarta.persistence.*;
+import jbar.service_core.Site.Model.Site;
 
-
+import java.util.List;
 
 @Entity
 @Table(name = "company")
-
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer companyId;
 
-
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "address", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "address", columnDefinition = "TEXT", nullable = true)
     private String address;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Site> sites;
 
     public Company() {
     }
@@ -30,6 +33,8 @@ public class Company {
         this.address = address;
         this.status = status;
     }
+
+    // Getters y Setters
 
     public Integer getCompanyId() {
         return companyId;
@@ -63,4 +68,11 @@ public class Company {
         this.status = status;
     }
 
+    public List<Site> getSites() {
+        return sites;
+    }
+
+    public void setSites(List<Site> sites) {
+        this.sites = sites;
+    }
 }
