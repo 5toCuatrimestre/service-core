@@ -3,6 +3,7 @@ package jbar.service_core.Company_Style.Model;
 import jakarta.persistence.*;
 import jbar.service_core.Company.Model.Company;
 import jbar.service_core.Style.Model.Style;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "company_style")
@@ -22,6 +23,20 @@ public class CompanyStyle {
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     public CompanyStyle() {
     }
 
@@ -30,6 +45,7 @@ public class CompanyStyle {
         this.company = company;
         this.style = style;
         this.status = status;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Integer getCompanyStyleId() {
@@ -62,5 +78,25 @@ public class CompanyStyle {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

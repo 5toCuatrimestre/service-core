@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jbar.service_core.User.Model.User;
 import jbar.service_core.Route.Model.Route;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "user_route")
 public class UserRoute {
@@ -21,6 +23,22 @@ public class UserRoute {
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+    @Column(name = "status", nullable = false)
+    private Boolean status = true;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public UserRoute() {
     }
@@ -58,6 +76,38 @@ public class UserRoute {
 
     public String getNotes() {
         return notes;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public void setNotes(String notes) {

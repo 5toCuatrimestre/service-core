@@ -2,7 +2,7 @@ package jbar.service_core.Company.Model;
 
 import jakarta.persistence.*;
 import jbar.service_core.Site.Model.Site;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,8 +21,22 @@ public class Company {
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Site> sites;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public Company() {
     }
@@ -32,6 +46,7 @@ public class Company {
         this.name = name;
         this.address = address;
         this.status = status;
+        this.createdAt = LocalDateTime.now();
     }
 
     // Getters y Setters
@@ -66,6 +81,26 @@ public class Company {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public List<Site> getSites() {

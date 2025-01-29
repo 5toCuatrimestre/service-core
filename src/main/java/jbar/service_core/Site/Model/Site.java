@@ -5,6 +5,7 @@ import jbar.service_core.Company.Model.Company;
 import jbar.service_core.Position_Site.Service.PositionSite;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,6 +33,19 @@ public class Site {
 
     @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoutePositionSiteUser> routePositionSiteUsers;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     // Constructor vacío
     public Site() {
@@ -85,6 +99,30 @@ public class Site {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public List<PositionSite> getPositionSites() {
