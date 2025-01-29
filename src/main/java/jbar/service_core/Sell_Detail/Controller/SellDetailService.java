@@ -1,0 +1,66 @@
+package jbar.service_core.Sell_Detail.Controller;
+
+import jbar.service_core.Product.Model.Product;
+import jbar.service_core.Product.Model.ProductRepository;
+import jbar.service_core.Sell.Model.Sell;
+import jbar.service_core.Sell.Model.SellRepository;
+import jbar.service_core.Sell_Detail.Model.SellDetail;
+import jbar.service_core.Sell_Detail.Model.SellDetailDTO;
+import jbar.service_core.Sell_Detail.Model.SellDetailRepository;
+import jbar.service_core.Util.Response.Message;
+import jbar.service_core.Util.Enum.TypesResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class SellDetailService {
+    private final Logger log = LoggerFactory.getLogger(SellDetailService.class);
+    private final SellDetailRepository sellDetailRepository;
+    private final SellRepository sellRepository;
+    private final ProductRepository productRepository;
+
+    @Autowired
+    public SellDetailService(SellDetailRepository sellDetailRepository, SellRepository sellRepository, ProductRepository productRepository) {
+        this.sellDetailRepository = sellDetailRepository;
+        this.sellRepository = sellRepository;
+        this.productRepository = productRepository;
+    }
+
+    public ResponseEntity<Message> create(SellDetailDTO sellDetailDTO) {
+        try {
+            Optional<Sell> sell = sellRepository.findById(sellDetailDTO.getSellId());
+            if (sell.isEmpty()) {
+                log.warn("Sell with id {} not found", sellDetailDTO.getSellId());
+                return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            Optional<Product> product = productRepository.findById(sellDetailDTO.getProductId());
+            if (product.isEmpty()) {
+                log.warn("Product with id {} not found", sellDetailDTO.getProductId());
+                return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            SellDetail sellDetail = new SellDetail();
+            sellDetail.setSell(sell.get());
+            sellDetail.setProduct(product.get());
+            sellDetail.setQuantity(sellDetailDTO.getQuantity());
+            sellDetail.setUnitPrice(sellDetailDTO.getUnitPrice());
+            sellDetail.setTotalPrice(sellDetailDTO.getTotalPrice());
+
+            sellDetailRepository.save(sellDetail);
+
+            log.info("SellDetail created successfully: {}", sellDetail);
+            return new ResponseEntity<>(new Message(sellDetail, "SellDetail created", TypesResponse.SUCCESS), HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error("Error creating SellDetail: {}", e.getMessage());
+            return new ResponseEntity<>(new Message(null, "Error creating SellDetail", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}

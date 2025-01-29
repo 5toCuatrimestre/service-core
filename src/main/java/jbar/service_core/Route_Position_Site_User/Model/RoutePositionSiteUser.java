@@ -6,6 +6,8 @@ import jbar.service_core.Position.Model.Position;
 import jbar.service_core.Site.Model.Site;
 import jbar.service_core.User.Model.User;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "route_position_site_user")
 public class RoutePositionSiteUser {
@@ -28,6 +30,22 @@ public class RoutePositionSiteUser {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @Column(name = "status", nullable = false)
+    private Boolean status = true;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public RoutePositionSiteUser() {
     }
@@ -64,6 +82,38 @@ public class RoutePositionSiteUser {
 
     public void setPosition(Position position) {
         this.position = position;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public Site getSite() {
