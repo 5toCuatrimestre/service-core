@@ -1,6 +1,7 @@
 package jbar.service_core.Style.Controller;
 
 import jbar.service_core.Style.Model.StyleDTO;
+import jbar.service_core.Style.Model.UpdateStyleDTO;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +33,10 @@ public class StyleController {
         return styleService.create(styleDTO);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Message> updateStyle(@PathVariable Integer id, @RequestBody StyleDTO styleDTO) {
-        return styleService.update(id, styleDTO);
+    @PatchMapping("/{id}") // Cambiar a PATCH ya que es actualización parcial
+    public ResponseEntity<Message> updateStyle(@PathVariable Integer id, @RequestBody UpdateStyleDTO updateStyleDTO) {
+        updateStyleDTO.setId(id);
+        return styleService.update(updateStyleDTO);
     }
 
     @DeleteMapping("/{id}")
