@@ -2,17 +2,12 @@ package jbar.service_core.Sell.Model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jbar.service_core.Sell_Detail.Model.SellDetailDTO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SellDTO {
-    @NotNull(message = "Error with product ID")
-    private Integer productId;
-
-    @NotNull(message = "Error with quantity")
-    @Positive(message = "Quantity must be positive")
-    private Integer quantity;
-
     @NotNull(message = "Error with total price")
     @Positive(message = "Total price must be positive")
     private Double totalPrice;
@@ -23,33 +18,20 @@ public class SellDTO {
     @NotNull(message = "Status is required")
     private Boolean status;
 
+    @NotNull(message = "Sell details are required")
+    private List<SellDetailDTO> sellDetails;
+
     public SellDTO() {
     }
 
-    public SellDTO(Integer productId, Integer quantity, Double totalPrice, LocalDateTime sellDate, Boolean status) {
-        this.productId = productId;
-        this.quantity = quantity;
+    public SellDTO(Double totalPrice, LocalDateTime sellDate, Boolean status, List<SellDetailDTO> sellDetails) {
         this.totalPrice = totalPrice;
         this.sellDate = sellDate;
         this.status = status;
+        this.sellDetails = sellDetails;
     }
 
     // Getters y Setters
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
 
     public Double getTotalPrice() {
         return totalPrice;
@@ -73,5 +55,13 @@ public class SellDTO {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public List<SellDetailDTO> getSellDetails() {
+        return sellDetails;
+    }
+
+    public void setSellDetails(List<SellDetailDTO> sellDetails) {
+        this.sellDetails = sellDetails;
     }
 }

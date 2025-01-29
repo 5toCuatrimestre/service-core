@@ -1,9 +1,10 @@
 package jbar.service_core.Sell.Model;
 
 import jakarta.persistence.*;
-import jbar.service_core.Product.Model.Product;
+import jbar.service_core.Sell_Detail.Model.SellDetail;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "sell")
@@ -11,13 +12,6 @@ public class Sell {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sellId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
@@ -28,43 +22,43 @@ public class Sell {
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "sell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SellDetail> sellDetails; // Relación con SellDetail
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     // Constructor por defecto
     public Sell() {
     }
 
     // Constructor con parámetros
-    public Sell(Integer sellId, Product product, Integer quantity, Double totalPrice, LocalDateTime sellDate, Boolean status) {
+    public Sell(Integer sellId, Double totalPrice, LocalDateTime sellDate, Boolean status) {
         this.sellId = sellId;
-        this.product = product;
-        this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.sellDate = sellDate;
         this.status = status;
     }
 
     // Getters y Setters
+
     public Integer getSellId() {
         return sellId;
     }
 
     public void setSellId(Integer sellId) {
         this.sellId = sellId;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
     }
 
     public Double getTotalPrice() {
@@ -89,5 +83,33 @@ public class Sell {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public List<SellDetail> getSellDetails() {
+        return sellDetails;
+    }
+
+    public void setSellDetails(List<SellDetail> sellDetails) {
+        this.sellDetails = sellDetails;
     }
 }
