@@ -57,13 +57,64 @@ public class StyleService {
 
     @Transactional
     public ResponseEntity<Message> update(UpdateStyleDTO dto) {
+        long startTime = System.nanoTime(); // Inicia la medición en nanosegundos
+
         Style existingStyle = styleRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Estilo no encontrado"));
-        // Llamamos al mapper para actualizar todos los campos enviados en la solicitud
+
         EntityMapper.merge(existingStyle, dto);
         styleRepository.saveAndFlush(existingStyle);
-        return new ResponseEntity<>(new Message(existingStyle, "Style updated", TypesResponse.SUCCESS), HttpStatus.OK);
+
+        long endTime = System.nanoTime(); // Finaliza la medición
+        long durationInMicroseconds = (endTime - startTime) / 1_000; // Convierte a microsegundos (µs)
+        long durationInMilliseconds = durationInMicroseconds / 1_000; // Convierte a milisegundos (ms)
+
+        return new ResponseEntity<>(new Message(
+                existingStyle,
+                "Style updated in " + durationInMilliseconds + "ms (" + durationInMicroseconds + "µs)",
+                TypesResponse.SUCCESS
+        ), HttpStatus.OK);
     }
+
+    @Transactional
+    public ResponseEntity<Message> updateLento(StyleDTO styleDTO) {
+        long startTime = System.nanoTime(); // Inicia la medición de tiempo
+        try {
+            Optional<Style> existingStyle = styleRepository.findById(styleDTO.getStyleId());
+            if (existingStyle.isPresent()) {
+                Style style = existingStyle.get();
+                if (styleDTO.getName() != null && !styleDTO.getName().isEmpty()) {
+                    style.setName(styleDTO.getName());
+                }
+                if (styleDTO.getDescription() != null) {
+                    style.setDescription(styleDTO.getDescription());
+                }
+                if (styleDTO.getStatus() != null) {
+                    style.setStatus(styleDTO.getStatus());
+                }
+
+                styleRepository.save(style);
+                log.info("Style with id {} updated successfully", styleDTO.getStyleId());
+
+                long endTime = System.nanoTime(); // Finaliza la medición de tiempo
+                long durationInMicroseconds = (endTime - startTime) / 1_000; // Convierte a microsegundos
+                long durationInMilliseconds = durationInMicroseconds / 1_000; // Convierte a milisegundos
+
+                return new ResponseEntity<>(new Message(
+                        style,
+                        "Style updated in " + durationInMilliseconds + "ms (" + durationInMicroseconds + "µs)",
+                        TypesResponse.SUCCESS
+                ), HttpStatus.OK);
+            } else {
+                log.warn("Style with id {} not found for update", styleDTO.getStyleId());
+                return new ResponseEntity<>(new Message(null, "Style not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            log.error("Error updating style with id {}: {}", styleDTO.getStyleId(), e.getMessage());
+            return new ResponseEntity<>(new Message(null, "Error updating style", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
     public ResponseEntity<Message> delete(Integer id) {

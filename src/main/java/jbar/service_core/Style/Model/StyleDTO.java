@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class StyleDTO {
-    @NotNull(message = "Error with style ID")
+
     private Integer styleId;
 
     @NotBlank(message = "Error with style name")

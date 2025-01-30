@@ -62,11 +62,11 @@ public class UserService {
         return new ResponseEntity<>(new Message(users, "Users found by role", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
-    @Transactional(readOnly = true)
+    /*@Transactional(readOnly = true)
     public ResponseEntity<Message> getAllUsersBySite(Integer siteId) {
         List<User> users = userRepository.findBySite_SiteId(siteId);
         return new ResponseEntity<>(new Message(users, "Users found by site", TypesResponse.SUCCESS), HttpStatus.OK);
-    }
+    }*/
 
     public ResponseEntity<Message> create(UserDTO userDTO) {
         User user = new User();

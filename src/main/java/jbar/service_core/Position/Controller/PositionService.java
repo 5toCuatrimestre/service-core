@@ -1,4 +1,4 @@
-package jbar.service_core.Position.Service;
+package jbar.service_core.Position.Controller;
 
 import jbar.service_core.Position.Model.Position;
 import jbar.service_core.Position.Model.PositionDTO;

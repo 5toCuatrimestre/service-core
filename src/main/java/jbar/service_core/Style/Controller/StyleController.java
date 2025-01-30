@@ -38,6 +38,11 @@ public class StyleController {
         updateStyleDTO.setId(id);
         return styleService.update(updateStyleDTO);
     }
+    @PatchMapping("lento/{id}") // Cambiar a PATCH ya que es actualización parcial
+    public ResponseEntity<Message> updateStyleLento(@PathVariable Integer id, @RequestBody StyleDTO styleDTO) {
+        styleDTO.setStyleId(id);
+        return styleService.updateLento(styleDTO);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Message> deleteStyle(@PathVariable Integer id) {

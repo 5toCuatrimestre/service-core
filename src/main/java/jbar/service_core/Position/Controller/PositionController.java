@@ -1,5 +1,6 @@
 package jbar.service_core.Position.Controller;
 
+import jbar.service_core.Position.Controller.PositionController;
 import jbar.service_core.Position.Model.PositionDTO;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/position")
 public class PositionController {
 
-    private final jbar.service_core.Position.Service.PositionService positionService;
+    private final PositionService positionService;
 
     @Autowired
-    public PositionController(jbar.service_core.Position.Service.PositionService positionService) {
+    public PositionController(PositionService positionService) {
         this.positionService = positionService;
     }
 

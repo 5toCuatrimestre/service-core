@@ -16,7 +16,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByNameContainingIgnoreCase(String name);
 
     List<User> findByRol(Rol rol);
-
-    // ✅ Método corregido para obtener usuarios por sitio
-    List<User> findBySite_SiteId(Integer siteId);
 }
