@@ -3,10 +3,8 @@ package jbar.service_core.Style.Controller;
 import jbar.service_core.Style.Model.Style;
 import jbar.service_core.Style.Model.StyleDTO;
 import jbar.service_core.Style.Model.StyleRepository;
-import jbar.service_core.Style.Model.UpdateStyleDTO;
 import jbar.service_core.Util.Response.Message;
 import jbar.service_core.Util.Enum.TypesResponse;
-import jbar.service_core.Util.Mapper.EntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,27 +51,6 @@ public class StyleService {
         styleRepository.save(style);
         log.info("Style created successfully: {}", style);
         return new ResponseEntity<>(new Message(style, "Style created", TypesResponse.SUCCESS), HttpStatus.CREATED);
-    }
-
-    @Transactional
-    public ResponseEntity<Message> update(UpdateStyleDTO dto) {
-        long startTime = System.nanoTime(); // Inicia la medición en nanosegundos
-
-        Style existingStyle = styleRepository.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Estilo no encontrado"));
-
-        EntityMapper.merge(existingStyle, dto);
-        styleRepository.saveAndFlush(existingStyle);
-
-        long endTime = System.nanoTime(); // Finaliza la medición
-        long durationInMicroseconds = (endTime - startTime) / 1_000; // Convierte a microsegundos (µs)
-        long durationInMilliseconds = durationInMicroseconds / 1_000; // Convierte a milisegundos (ms)
-
-        return new ResponseEntity<>(new Message(
-                existingStyle,
-                "Style updated in " + durationInMilliseconds + "ms (" + durationInMicroseconds + "µs)",
-                TypesResponse.SUCCESS
-        ), HttpStatus.OK);
     }
 
     @Transactional

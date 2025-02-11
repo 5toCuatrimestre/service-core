@@ -51,73 +51,59 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> getUsersByName(String name) {
-        List<User> users = userRepository.findByNameContainingIgnoreCase(name);
-        return new ResponseEntity<>(new Message(users, "Users found", TypesResponse.SUCCESS), HttpStatus.OK);
-    }
-
-    @Transactional(readOnly = true)
     public ResponseEntity<Message> getAllUsersByRol(Rol rol) {
         List<User> users = userRepository.findByRol(rol);
         return new ResponseEntity<>(new Message(users, "Users found by role", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
-    /*@Transactional(readOnly = true)
-    public ResponseEntity<Message> getAllUsersBySite(Integer siteId) {
-        List<User> users = userRepository.findBySite_SiteId(siteId);
-        return new ResponseEntity<>(new Message(users, "Users found by site", TypesResponse.SUCCESS), HttpStatus.OK);
-    }*/
-
+    //Recuerda poner el tipo de Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(UserDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
+        user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
         user.setPassword(userDTO.getPassword());
+        user.setRol(userDTO.getRol());
         user.setStatus(Status.ACTIVE);
-        user.setCreatedAt(Date.valueOf(LocalDate.now()));
-        userRepository.save(user);
-        log.info("User created successfully: {}", user);
-        return new ResponseEntity<>(new Message(user, "User created", TypesResponse.SUCCESS), HttpStatus.CREATED);
-    }
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        //Siempre se recibe la fecha desde frontend :)
+        user.setCreatedAt(userDTO.getCreatedAt());
 
+        userRepository.save(user);
+
+        log.info("User created successfully: {}", user);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new Message(user, "User created", TypesResponse.SUCCESS));
+    }
+    //SIEMPRE EL ID EN PATHVARIABLE
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, UserDTO userDTO) {
-        Optional<User> existingUser = userRepository.findById(id);
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
+        Optional<User> existingUserOptional = userRepository.findById(id);
+
+        if (existingUserOptional.isPresent()) {
+            User user = existingUserOptional.get();
+            // Asignamos todos los valores desde el DTO al usuario existente
             user.setName(userDTO.getName());
+            user.setLastName(userDTO.getLastName());
             user.setEmail(userDTO.getEmail());
             user.setPassword(userDTO.getPassword());
+            user.setStatus(userDTO.getStatus());
+            user.setRol(userDTO.getRol());
+            user.setPhoneNumber(userDTO.getPhoneNumber());
             user.setUpdatedAt(Date.valueOf(LocalDate.now()));
-            userRepository.save(user);
+
+            userRepository.saveAndFlush(user); // Guarda y refresca en la BD
+
             log.info("User with id {} updated successfully", id);
-            return new ResponseEntity<>(new Message(user, "User updated", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("User with id {} not found for update", id);
-            return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(new Message(user, "User updated", TypesResponse.SUCCESS));
         }
-    }
 
-    public ResponseEntity<Message> updateUserField(Integer id, String fieldName, Object value) {
-        Optional<User> existingUser = userRepository.findById(id);
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-            switch (fieldName.toLowerCase()) {
-                case "name" -> user.setName((String) value);
-                case "email" -> user.setEmail((String) value);
-                case "password" -> user.setPassword((String) value);
-                case "rol" -> user.setRol(Rol.valueOf((String) value));
-                default -> {
-                    return new ResponseEntity<>(new Message(null, "Invalid field", TypesResponse.ERROR), HttpStatus.BAD_REQUEST);
-                }
-            }
-            user.setUpdatedAt(Date.valueOf(LocalDate.now()));
-            userRepository.save(user);
-            return new ResponseEntity<>(new Message(user, "User field updated", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-        }
+        log.warn("User with id {} not found for update", id);
+        return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
-
+    //SIEMPRE EL ID EN PATHVARIABLE
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> changeStatus(Integer id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
@@ -127,6 +113,7 @@ public class UserService {
                 existingUser.setDeletedAt(Date.valueOf(LocalDate.now()));
             } else {
                 existingUser.setStatus(Status.ACTIVE);
+                //Hace falta que actualice la ultima fecha de updated_at
                 existingUser.setDeletedAt(null);
             }
             userRepository.save(existingUser);

@@ -28,7 +28,6 @@ public class User {
     private Rol rol;
     @Column(name = "phone_number", columnDefinition = "VARCHAR(15)")
     private String phoneNumber;
-    @JsonIgnore
     @Column(name="created_at")
     private Date createdAt;
     @JsonIgnore

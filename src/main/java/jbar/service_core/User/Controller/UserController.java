@@ -37,7 +37,7 @@ public class UserController {
         return userService.update(id, userDTO);
     }
 
-    @PatchMapping("/{id}/status")
+    @PutMapping("/status/{id}")
     public ResponseEntity<Message> changeUserStatus(@PathVariable Integer id) {
         return userService.changeStatus(id);
     }
