@@ -1,20 +1,20 @@
 package jbar.service_core.Product.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+@Schema(description = "Product DTO")
 public class ProductDTO {
-    @NotNull(message = "Error with product ID")
-    private Integer productId;
 
-    @NotBlank(message = "Error with product name")
+    @NotBlank(message = "Product name cannot be blank.")
     private String name;
 
-    @NotBlank(message = "Error with product description")
+    @NotBlank(message = "Product description cannot be blank.")
     private String description;
 
-    @Positive(message = "Error with product price")
+    @Positive(message = "Product price must be greater than zero.")
     private Double price;
 
     private Boolean status;
@@ -22,20 +22,11 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(Integer productId, String name, String description, Double price, Boolean status) {
-        this.productId = productId;
+    public ProductDTO(String name, String description, Double price, Boolean status) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.status = status;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
     }
 
     public String getName() {

@@ -49,8 +49,6 @@ public class Company {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters y Setters
-
     public Integer getCompanyId() {
         return companyId;
     }

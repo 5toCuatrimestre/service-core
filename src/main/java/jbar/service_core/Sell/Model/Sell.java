@@ -1,10 +1,11 @@
 package jbar.service_core.Sell.Model;
 
 import jakarta.persistence.*;
-import jbar.service_core.Sell_Detail.Model.SellDetail;
+import jbar.service_core.User.Model.User;
+import jbar.service_core.Waiter.Model.Waiter;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "sell")
@@ -13,11 +14,22 @@ public class Sell {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sellId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "waiter_id", nullable = false)
+    private Waiter waiter;
+
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
     @Column(name = "sell_date", nullable = false)
     private LocalDateTime sellDate;
+
+    @Column(name = "sell_time", nullable = false)
+    private LocalTime sellTime;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
@@ -31,27 +43,10 @@ public class Sell {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "sell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<SellDetail> sellDetails; // Relación con SellDetail
-
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    // Constructor por defecto
-    public Sell() {
-    }
-
-    // Constructor con parámetros
-    public Sell(Integer sellId, Double totalPrice, LocalDateTime sellDate, Boolean status) {
-        this.sellId = sellId;
-        this.totalPrice = totalPrice;
-        this.sellDate = sellDate;
-        this.status = status;
-    }
-
-    // Getters y Setters
 
     public Integer getSellId() {
         return sellId;
@@ -59,6 +54,22 @@ public class Sell {
 
     public void setSellId(Integer sellId) {
         this.sellId = sellId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Waiter getWaiter() {
+        return waiter;
+    }
+
+    public void setWaiter(Waiter waiter) {
+        this.waiter = waiter;
     }
 
     public Double getTotalPrice() {
@@ -75,6 +86,14 @@ public class Sell {
 
     public void setSellDate(LocalDateTime sellDate) {
         this.sellDate = sellDate;
+    }
+
+    public LocalTime getSellTime() {
+        return sellTime;
+    }
+
+    public void setSellTime(LocalTime sellTime) {
+        this.sellTime = sellTime;
     }
 
     public Boolean getStatus() {
@@ -103,13 +122,5 @@ public class Sell {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public List<SellDetail> getSellDetails() {
-        return sellDetails;
-    }
-
-    public void setSellDetails(List<SellDetail> sellDetails) {
-        this.sellDetails = sellDetails;
     }
 }

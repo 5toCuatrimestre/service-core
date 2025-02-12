@@ -1,6 +1,5 @@
 package jbar.service_core.Position.Controller;
 
-import jbar.service_core.Position.Controller.PositionController;
 import jbar.service_core.Position.Model.PositionDTO;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;

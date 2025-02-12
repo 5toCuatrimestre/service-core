@@ -11,11 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class PositionService {
     private final Logger log = LoggerFactory.getLogger(PositionService.class);
     private final PositionRepository positionRepository;
@@ -25,33 +28,39 @@ public class PositionService {
         this.positionRepository = positionRepository;
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> findAll() {
         List<Position> positions = positionRepository.findAll();
         log.info("All positions retrieved successfully");
         return new ResponseEntity<>(new Message(positions, "Positions retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> findById(Integer id) {
         Optional<Position> position = positionRepository.findById(id);
-        if (position.isPresent()) {
+        return position.map(value -> {
             log.info("Position with id {} retrieved successfully", id);
-            return new ResponseEntity<>(new Message(position.get(), "Position found", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
+            return new ResponseEntity<>(new Message(value, "Position found", TypesResponse.SUCCESS), HttpStatus.OK);
+        }).orElseGet(() -> {
             log.warn("Position with id {} not found", id);
             return new ResponseEntity<>(new Message(null, "Position not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-        }
+        });
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(PositionDTO positionDTO) {
         Position position = new Position();
         position.setName(positionDTO.getName());
         position.setDescription(positionDTO.getDescription());
         position.setStatus(positionDTO.getStatus());
         positionRepository.save(position);
+
         log.info("Position created successfully: {}", position);
-        return new ResponseEntity<>(new Message(position, "Position created", TypesResponse.SUCCESS), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new Message(position, "Position created", TypesResponse.SUCCESS));
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, PositionDTO positionDTO) {
         Optional<Position> existingPosition = positionRepository.findById(id);
         if (existingPosition.isPresent()) {
@@ -59,15 +68,19 @@ public class PositionService {
             position.setName(positionDTO.getName());
             position.setDescription(positionDTO.getDescription());
             position.setStatus(positionDTO.getStatus());
-            positionRepository.save(position);
+            position.setUpdatedAt(LocalDateTime.now());
+
+            positionRepository.saveAndFlush(position);
+
             log.info("Position with id {} updated successfully", id);
-            return new ResponseEntity<>(new Message(position, "Position updated", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("Position with id {} not found for update", id);
-            return new ResponseEntity<>(new Message(null, "Position not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(new Message(position, "Position updated", TypesResponse.SUCCESS));
         }
+
+        log.warn("Position with id {} not found for update", id);
+        return new ResponseEntity<>(new Message(null, "Position not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> delete(Integer id) {
         Optional<Position> position = positionRepository.findById(id);
         if (position.isPresent()) {

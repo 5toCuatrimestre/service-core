@@ -1,35 +1,24 @@
 package jbar.service_core.Position.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Position DTO")
 public class PositionDTO {
-    @NotNull(message = "Error with position ID")
-    private Integer positionId;
 
-    @NotBlank(message = "Error with position name")
+    @NotBlank(message = "Position name cannot be blank.")
     private String name;
 
     private String description;
-
     private Boolean status;
 
     public PositionDTO() {
     }
 
-    public PositionDTO(Integer positionId, String name, String description, Boolean status) {
-        this.positionId = positionId;
+    public PositionDTO(String name, String description, Boolean status) {
         this.name = name;
         this.description = description;
         this.status = status;
-    }
-
-    public Integer getPositionId() {
-        return positionId;
-    }
-
-    public void setPositionId(Integer positionId) {
-        this.positionId = positionId;
     }
 
     public String getName() {

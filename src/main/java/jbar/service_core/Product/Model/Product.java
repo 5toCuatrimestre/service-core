@@ -49,7 +49,7 @@ public class Product {
     private List<Company> companies;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<SellDetail> sellDetails; // Relación con SellDetail
+    private List<SellDetail> sellDetails;
 
     public Product() {
     }
@@ -61,8 +61,6 @@ public class Product {
         this.price = price;
         this.status = status;
     }
-
-    // Getters y Setters
 
     public Integer getProductId() {
         return productId;

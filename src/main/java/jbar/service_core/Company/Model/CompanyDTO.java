@@ -1,16 +1,16 @@
 package jbar.service_core.Company.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Company DTO")
 public class CompanyDTO {
-    @NotNull(message = "Error with company ID")
-    private Integer companyId;
 
-    @NotBlank(message = "Error with company name")
+    @NotBlank(message = "Company name cannot be blank.")
     private String name;
 
-    @NotBlank(message = "Error with company address")
+    @NotBlank(message = "Company address cannot be blank.")
     private String address;
 
     private Boolean status;
@@ -18,19 +18,10 @@ public class CompanyDTO {
     public CompanyDTO() {
     }
 
-    public CompanyDTO(Integer companyId, String name, String address, Boolean status) {
-        this.companyId = companyId;
+    public CompanyDTO(String name, String address, Boolean status) {
         this.name = name;
         this.address = address;
         this.status = status;
-    }
-
-    public Integer getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(Integer companyId) {
-        this.companyId = companyId;
     }
 
     public String getName() {
