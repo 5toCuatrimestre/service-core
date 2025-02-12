@@ -16,11 +16,12 @@ public class Style {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -30,16 +31,36 @@ public class Style {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "header")
+    private String header;
+
+    @Column(name = "h1")
+    private String h1;
+
+    @Column(name = "h2")
+    private String h2;
+
+    @Column(name = "h3")
+    private String h3;
+
+    @Column(name = "p")
+    private String p;
+
+    @Column(name = "by_interface")
+    private String byInterface;
+
+    @Column(name = "by_button")
+    private String byButton;
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 
-    @OneToMany(mappedBy = "style")
+    @OneToMany(mappedBy = "style", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompanyStyle> companyStyles;
 
-    public Style() {
-    }
+    public Style() {}
 
     public Style(Integer styleId, String name, String description, Boolean status) {
         this.styleId = styleId;
@@ -76,20 +97,16 @@ public class Style {
         return status;
     }
 
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public LocalDateTime getDeletedAt() {
@@ -100,8 +117,60 @@ public class Style {
         this.deletedAt = deletedAt;
     }
 
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public String getH1() {
+        return h1;
+    }
+
+    public void setH1(String h1) {
+        this.h1 = h1;
+    }
+
+    public String getH2() {
+        return h2;
+    }
+
+    public void setH2(String h2) {
+        this.h2 = h2;
+    }
+
+    public String getH3() {
+        return h3;
+    }
+
+    public void setH3(String h3) {
+        this.h3 = h3;
+    }
+
+    public String getP() {
+        return p;
+    }
+
+    public void setP(String p) {
+        this.p = p;
+    }
+
+    public String getByInterface() {
+        return byInterface;
+    }
+
+    public void setByInterface(String byInterface) {
+        this.byInterface = byInterface;
+    }
+
+    public String getByButton() {
+        return byButton;
+    }
+
+    public void setByButton(String byButton) {
+        this.byButton = byButton;
     }
 
     public List<CompanyStyle> getCompanyStyles() {

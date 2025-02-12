@@ -3,17 +3,8 @@ package jbar.service_core.Sell.Controller;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Sell.Model.SellDTO;
 import jbar.service_core.Sell.Model.SellRepository;
-
-
-
-import jbar.service_core.Product.Model.Product;
-import jbar.service_core.Product.Model.ProductRepository;
-import jbar.service_core.Sell_Detail.Model.SellDetail;
-import jbar.service_core.Sell_Detail.Model.SellDetailDTO;
-import jbar.service_core.Sell_Detail.Model.SellDetailRepository;
 import jbar.service_core.Util.Response.Message;
 import jbar.service_core.Util.Enum.TypesResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +20,10 @@ import java.util.Optional;
 public class SellService {
     private final Logger log = LoggerFactory.getLogger(SellService.class);
     private final SellRepository sellRepository;
-    private final SellDetailRepository sellDetailRepository;
-    private final ProductRepository productRepository;
 
     @Autowired
-    public SellService(SellRepository sellRepository, SellDetailRepository sellDetailRepository, ProductRepository productRepository) {
+    public SellService(SellRepository sellRepository) {
         this.sellRepository = sellRepository;
-        this.sellDetailRepository = sellDetailRepository;
-        this.productRepository = productRepository;
     }
 
     public ResponseEntity<Message> findAll() {
@@ -56,31 +43,64 @@ public class SellService {
         }
     }
 
+    public ResponseEntity<Message> findByUserId(Integer userId) {
+        List<Sell> sells = sellRepository.findByUser_UserId(userId);
+        if (sells.isEmpty()) {
+            log.warn("No sells found for user with id {}", userId);
+            return new ResponseEntity<>(new Message(null, "No sells found for user", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+        log.info("Sells retrieved for user {}", userId);
+        return new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Message> findByWaiterId(Integer waiterId) {
+        List<Sell> sells = sellRepository.findByWaiter_WaiterId(waiterId);
+        if (sells.isEmpty()) {
+            log.warn("No sells found for waiter with id {}", waiterId);
+            return new ResponseEntity<>(new Message(null, "No sells found for waiter", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+        log.info("Sells retrieved for waiter {}", waiterId);
+        return new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Message> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Sell> sells = sellRepository.findBySellDateBetween(startDate, endDate);
+        if (sells.isEmpty()) {
+            log.warn("No sells found in date range {} - {}", startDate, endDate);
+            return new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+        log.info("Sells retrieved in date range {} - {}", startDate, endDate);
+        return new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Message> findActiveSells() {
+        List<Sell> sells = sellRepository.findByStatusTrue();
+        if (sells.isEmpty()) {
+            log.warn("No active sells found");
+            return new ResponseEntity<>(new Message(null, "No active sells found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+        log.info("Active sells retrieved successfully");
+        return new ResponseEntity<>(new Message(sells, "Active sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Message> findInactiveSells() {
+        List<Sell> sells = sellRepository.findByStatusFalse();
+        if (sells.isEmpty()) {
+            log.warn("No inactive sells found");
+            return new ResponseEntity<>(new Message(null, "No inactive sells found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+        log.info("Inactive sells retrieved successfully");
+        return new ResponseEntity<>(new Message(sells, "Inactive sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
     public ResponseEntity<Message> create(SellDTO sellDTO) {
         try {
-            // Crear la venta
             Sell sell = new Sell();
             sell.setTotalPrice(sellDTO.getTotalPrice());
             sell.setSellDate(sellDTO.getSellDate());
+            sell.setSellTime(sellDTO.getSellTime());
             sell.setStatus(sellDTO.getStatus());
             sellRepository.save(sell);
-
-            // Crear detalles de venta en SellDetail
-            for (SellDetailDTO detailDTO : sellDTO.getSellDetails()) {
-                Optional<Product> product = productRepository.findById(detailDTO.getProductId());
-                if (product.isEmpty()) {
-                    log.warn("Product with id {} not found", detailDTO.getProductId());
-                    return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-                }
-
-                SellDetail sellDetail = new SellDetail();
-                sellDetail.setSell(sell);
-                sellDetail.setProduct(product.get());
-                sellDetail.setQuantity(detailDTO.getQuantity());
-                sellDetail.setUnitPrice(detailDTO.getUnitPrice());
-                sellDetail.setTotalPrice(detailDTO.getTotalPrice());
-                sellDetailRepository.save(sellDetail);
-            }
 
             log.info("Sell created successfully: {}", sell);
             return new ResponseEntity<>(new Message(sell, "Sell created", TypesResponse.SUCCESS), HttpStatus.CREATED);
@@ -101,26 +121,9 @@ public class SellService {
             Sell sell = existingSell.get();
             sell.setTotalPrice(sellDTO.getTotalPrice());
             sell.setSellDate(sellDTO.getSellDate());
+            sell.setSellTime(sellDTO.getSellTime());
             sell.setStatus(sellDTO.getStatus());
             sellRepository.save(sell);
-
-            // Actualizar detalles de venta en SellDetail
-            for (SellDetailDTO detailDTO : sellDTO.getSellDetails()) {
-                Optional<Product> product = productRepository.findById(detailDTO.getProductId());
-                if (product.isEmpty()) {
-                    log.warn("Product with id {} not found", detailDTO.getProductId());
-                    return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-                }
-
-                Optional<SellDetail> existingDetail = sellDetailRepository.findById(detailDTO.getSellDetailId());
-                SellDetail sellDetail = existingDetail.orElse(new SellDetail());
-                sellDetail.setSell(sell);
-                sellDetail.setProduct(product.get());
-                sellDetail.setQuantity(detailDTO.getQuantity());
-                sellDetail.setUnitPrice(detailDTO.getUnitPrice());
-                sellDetail.setTotalPrice(detailDTO.getTotalPrice());
-                sellDetailRepository.save(sellDetail);
-            }
 
             log.info("Sell with id {} updated successfully", id);
             return new ResponseEntity<>(new Message(sell, "Sell updated", TypesResponse.SUCCESS), HttpStatus.OK);
@@ -135,7 +138,6 @@ public class SellService {
         if (sell.isPresent()) {
             Sell existingSell = sell.get();
             existingSell.setStatus(false);
-            existingSell.setDeletedAt(LocalDateTime.now());
             sellRepository.save(existingSell);
             log.info("Sell with id {} marked as deleted", id);
             return new ResponseEntity<>(new Message(null, "Sell deleted (soft delete)", TypesResponse.SUCCESS), HttpStatus.OK);
