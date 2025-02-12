@@ -29,7 +29,7 @@ public class Sell {
     private LocalDateTime sellDate;
 
     @Column(name = "sell_time", nullable = false)
-    private LocalTime sellTime;  // 🔥 Se agrega correctamente
+    private LocalTime sellTime;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
@@ -47,8 +47,6 @@ public class Sell {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    // 🔥 Getters y Setters
 
     public Integer getSellId() {
         return sellId;
@@ -90,11 +88,11 @@ public class Sell {
         this.sellDate = sellDate;
     }
 
-    public LocalTime getSellTime() {  // 🔥 Getter para sellTime
+    public LocalTime getSellTime() {
         return sellTime;
     }
 
-    public void setSellTime(LocalTime sellTime) {  // 🔥 Setter para sellTime
+    public void setSellTime(LocalTime sellTime) {
         this.sellTime = sellTime;
     }
 
@@ -108,10 +106,6 @@ public class Sell {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {

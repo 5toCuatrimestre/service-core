@@ -1,6 +1,7 @@
 package jbar.service_core.Style.Controller;
 
 import jbar.service_core.Style.Model.StyleDTO;
+import jbar.service_core.Util.Enum.TypesResponse;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +35,13 @@ public class StyleController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Message> updateStyle(@PathVariable Integer id, @RequestBody StyleDTO styleDTO) {
-        styleDTO.setStyleId(id);
-        return styleService.updateLento(styleDTO);
+        if (styleDTO == null) {
+            return ResponseEntity.badRequest().body(new Message(null, "Invalid request body", TypesResponse.ERROR));
+        }
+
+        return styleService.update(id, styleDTO);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Message> deleteStyle(@PathVariable Integer id) {

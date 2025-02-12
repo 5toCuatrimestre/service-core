@@ -1,12 +1,12 @@
 package jbar.service_core.Route.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-public class RouteDTO {
-    private Integer routeId;
 
-    @NotBlank(message = "Route name cannot be blank")
-    @NotNull(message = "Error with role ID")
+@Schema(description = "Route DTO")
+public class RouteDTO {
+
+    @NotBlank(message = "Route name cannot be blank.")
     private String name;
 
     private Double distance;
@@ -17,21 +17,12 @@ public class RouteDTO {
     public RouteDTO() {
     }
 
-    public RouteDTO(Integer routeId, String name, Double distance, Integer estimatedTime, String difficultyLevel, String status) {
-        this.routeId = routeId;
+    public RouteDTO(String name, Double distance, Integer estimatedTime, String difficultyLevel, String status) {
         this.name = name;
         this.distance = distance;
         this.estimatedTime = estimatedTime;
         this.difficultyLevel = difficultyLevel;
         this.status = status;
-    }
-
-    public Integer getRouteId() {
-        return routeId;
-    }
-
-    public void setRouteId(Integer routeId) {
-        this.routeId = routeId;
     }
 
     public String getName() {

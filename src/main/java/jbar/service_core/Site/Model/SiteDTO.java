@@ -1,16 +1,16 @@
 package jbar.service_core.Site.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Site DTO")
 public class SiteDTO {
-    @NotNull(message = "Error with site ID")
-    private Integer siteId;
 
-    @NotBlank(message = "Error with site name")
+    @NotBlank(message = "Site name cannot be blank.")
     private String name;
 
-    @NotBlank(message = "Error with site location")
+    @NotBlank(message = "Site location cannot be blank.")
     private String location;
 
     private Boolean status;
@@ -18,19 +18,10 @@ public class SiteDTO {
     public SiteDTO() {
     }
 
-    public SiteDTO(Integer siteId, String name, String location, Boolean status) {
-        this.siteId = siteId;
+    public SiteDTO(String name, String location, Boolean status) {
         this.name = name;
         this.location = location;
         this.status = status;
-    }
-
-    public Integer getSiteId() {
-        return siteId;
-    }
-
-    public void setSiteId(Integer siteId) {
-        this.siteId = siteId;
     }
 
     public String getName() {

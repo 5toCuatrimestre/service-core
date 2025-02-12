@@ -33,6 +33,7 @@ public class Site {
 
     @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoutePositionSiteUser> routePositionSiteUsers;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -47,11 +48,9 @@ public class Site {
         updatedAt = LocalDateTime.now();
     }
 
-    // Constructor vacío
     public Site() {
     }
 
-    // Constructor con todos los campos
     public Site(Integer siteId, String name, String location, Boolean status, Company company) {
         this.siteId = siteId;
         this.name = name;
@@ -60,7 +59,6 @@ public class Site {
         this.company = company;
     }
 
-    // Getters y setters
     public Integer getSiteId() {
         return siteId;
     }
@@ -103,10 +101,6 @@ public class Site {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {

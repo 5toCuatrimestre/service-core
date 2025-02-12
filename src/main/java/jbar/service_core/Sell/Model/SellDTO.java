@@ -1,5 +1,6 @@
 package jbar.service_core.Sell.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jbar.service_core.Sell_Detail.Model.SellDetailDTO;
@@ -8,22 +9,23 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+@Schema(description = "Sell DTO")
 public class SellDTO {
 
-    @NotNull(message = "Error with user ID")
+    @NotNull(message = "User ID is required")
     private Integer userId;
 
-    @NotNull(message = "Error with waiter ID")
+    @NotNull(message = "Waiter ID is required")
     private Integer waiterId;
 
-    @NotNull(message = "Error with total price")
+    @NotNull(message = "Total price is required")
     @Positive(message = "Total price must be positive")
     private Double totalPrice;
 
-    @NotNull(message = "Error with sell date")
+    @NotNull(message = "Sell date is required")
     private LocalDateTime sellDate;
 
-    @NotNull(message = "Error with sell time")
+    @NotNull(message = "Sell time is required")
     private LocalTime sellTime;
 
     @NotNull(message = "Status is required")
@@ -44,8 +46,6 @@ public class SellDTO {
         this.status = status;
         this.sellDetails = sellDetails;
     }
-
-    // Getters y Setters
 
     public Integer getUserId() {
         return userId;

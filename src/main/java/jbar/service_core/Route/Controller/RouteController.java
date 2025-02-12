@@ -1,20 +1,20 @@
 package jbar.service_core.Route.Controller;
 
+import jbar.service_core.Route.Model.RouteDTO;
+
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jbar.service_core.Route.Model.RouteDTO;
-
 
 @RestController
 @RequestMapping("/route")
 public class RouteController {
 
-    private final jbar.service_core.Route.Controller.RouteService  routeService;
+    private final RouteService routeService;
 
     @Autowired
-    public RouteController(jbar.service_core.Route.Controller.RouteService routeService) {
+    public RouteController(RouteService routeService) {
         this.routeService = routeService;
     }
 
@@ -38,8 +38,8 @@ public class RouteController {
         return routeService.update(id, routeDTO);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Message> deleteRoute(@PathVariable Integer id) {
-        return routeService.delete(id);
+    @PutMapping("/status/{id}")
+    public ResponseEntity<Message> changeRouteStatus(@PathVariable Integer id) {
+        return routeService.changeStatus(id);
     }
 }

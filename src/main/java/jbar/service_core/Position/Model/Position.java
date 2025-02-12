@@ -17,7 +17,7 @@ public class Position {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "status", nullable = false)
@@ -36,6 +36,7 @@ public class Position {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
     @OneToMany(mappedBy = "position")
     private List<PositionSite> positionSites;
 
@@ -86,10 +87,6 @@ public class Position {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {

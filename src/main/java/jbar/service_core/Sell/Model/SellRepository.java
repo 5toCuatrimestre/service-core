@@ -15,7 +15,7 @@ public interface SellRepository extends JpaRepository<Sell, Integer> {
 
     List<Sell> findBySellDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    List<Sell> findByStatusTrue();  // Ventas activas
+    List<Sell> findByStatusTrue();
 
-    List<Sell> findByStatusFalse(); // Ventas inactivas
+    List<Sell> findByStatusFalse();
 }

@@ -1,13 +1,15 @@
 package jbar.service_core.Style.Model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Style DTO")
 public class StyleDTO {
 
     private Integer styleId;
 
-    @NotBlank(message = "Error with style name")
+    @NotBlank(message = "Style name cannot be blank")
     private String name;
 
     private String description;
