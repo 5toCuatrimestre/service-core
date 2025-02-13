@@ -1,30 +1,28 @@
-package jbar.service_core.Rating.Model;
+package jbar.service_core.RatingUserSell.Model;
 
 import jakarta.persistence.*;
 import jbar.service_core.Sell.Model.Sell;
-import jbar.service_core.Waiter.Model.Waiter;
+import jbar.service_core.User.Model.User;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "rating")
-public class Rating {
+@Table(name = "rating_user_sell")
+public class RatingUserSell {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer ratingId;
+    private Integer ratingUserSellId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sell_id", nullable = false)
     private Sell sell;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "waiter_id", nullable = false)
-    private Waiter waiter;
-
     @Column(name = "stars", nullable = false)
     private Integer stars;
-
-    @Column(name = "comment", columnDefinition = "TEXT")
-    private String comment;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -40,23 +38,30 @@ public class Rating {
         updatedAt = LocalDateTime.now();
     }
 
-    public Rating() {}
+    // Constructores
+    public RatingUserSell() {}
 
-    public Rating(Integer ratingId, Sell sell, Waiter waiter, Integer stars, String comment) {
-        this.ratingId = ratingId;
+    public RatingUserSell(User user, Sell sell, Integer stars) {
+        this.user = user;
         this.sell = sell;
-        this.waiter = waiter;
         this.stars = stars;
-        this.comment = comment;
     }
 
     // Getters y Setters
-    public Integer getRatingId() {
-        return ratingId;
+    public Integer getRatingUserSellId() {
+        return ratingUserSellId;
     }
 
-    public void setRatingId(Integer ratingId) {
-        this.ratingId = ratingId;
+    public void setRatingUserSellId(Integer ratingUserSellId) {
+        this.ratingUserSellId = ratingUserSellId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Sell getSell() {
@@ -67,28 +72,12 @@ public class Rating {
         this.sell = sell;
     }
 
-    public Waiter getWaiter() {
-        return waiter;
-    }
-
-    public void setWaiter(Waiter waiter) {
-        this.waiter = waiter;
-    }
-
     public Integer getStars() {
         return stars;
     }
 
     public void setStars(Integer stars) {
         this.stars = stars;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public LocalDateTime getCreatedAt() {

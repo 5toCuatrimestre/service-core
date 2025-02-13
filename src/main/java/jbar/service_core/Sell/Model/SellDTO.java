@@ -15,9 +15,6 @@ public class SellDTO {
     @NotNull(message = "User ID is required")
     private Integer userId;
 
-    @NotNull(message = "Waiter ID is required")
-    private Integer waiterId;
-
     @NotNull(message = "Total price is required")
     @Positive(message = "Total price must be positive")
     private Double totalPrice;
@@ -37,9 +34,8 @@ public class SellDTO {
     public SellDTO() {
     }
 
-    public SellDTO(Integer userId, Integer waiterId, Double totalPrice, LocalDateTime sellDate, LocalTime sellTime, Boolean status, List<SellDetailDTO> sellDetails) {
+    public SellDTO(Integer userId, Double totalPrice, LocalDateTime sellDate, LocalTime sellTime, Boolean status, List<SellDetailDTO> sellDetails) {
         this.userId = userId;
-        this.waiterId = waiterId;
         this.totalPrice = totalPrice;
         this.sellDate = sellDate;
         this.sellTime = sellTime;
@@ -53,14 +49,6 @@ public class SellDTO {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
-    }
-
-    public Integer getWaiterId() {
-        return waiterId;
-    }
-
-    public void setWaiterId(Integer waiterId) {
-        this.waiterId = waiterId;
     }
 
     public Double getTotalPrice() {

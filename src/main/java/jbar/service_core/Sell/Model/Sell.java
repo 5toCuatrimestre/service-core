@@ -2,14 +2,17 @@ package jbar.service_core.Sell.Model;
 
 import jakarta.persistence.*;
 import jbar.service_core.User.Model.User;
-import jbar.service_core.Waiter.Model.Waiter;
+import jbar.service_core.RatingUserSell.Model.RatingUserSell;
+import jbar.service_core.Sell_Detail.Model.SellDetail;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "sell")
 public class Sell {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sellId;
@@ -17,10 +20,6 @@ public class Sell {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "waiter_id", nullable = false)
-    private Waiter waiter;
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
@@ -48,6 +47,14 @@ public class Sell {
         updatedAt = LocalDateTime.now();
     }
 
+    // Relación con RatingUserSell (Para registrar calificaciones de meseros)
+    @OneToMany(mappedBy = "sell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RatingUserSell> ratings;
+
+    // Relación con SellDetail (Para almacenar los productos vendidos en esta venta)
+    @OneToMany(mappedBy = "sell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SellDetail> sellDetails;
+
     public Integer getSellId() {
         return sellId;
     }
@@ -62,14 +69,6 @@ public class Sell {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Waiter getWaiter() {
-        return waiter;
-    }
-
-    public void setWaiter(Waiter waiter) {
-        this.waiter = waiter;
     }
 
     public Double getTotalPrice() {
@@ -122,5 +121,21 @@ public class Sell {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public List<RatingUserSell> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<RatingUserSell> ratings) {
+        this.ratings = ratings;
+    }
+
+    public List<SellDetail> getSellDetails() {
+        return sellDetails;
+    }
+
+    public void setSellDetails(List<SellDetail> sellDetails) {
+        this.sellDetails = sellDetails;
     }
 }
