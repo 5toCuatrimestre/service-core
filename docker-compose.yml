@@ -1,0 +1,32 @@
+services:
+  app_core:
+    build: service-core
+    container_name: service-core-app
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: service-core
+      SPRING_DATASOURCE_URL: jdbc:mysql://core_db:3306/core_db?serverTimezone=America/Mexico_City&useLegacyDateTimeCode=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+    restart: always
+    depends_on:
+      core_db:
+        condition: service_healthy
+
+  core_db:
+    image: mysql:8.0
+    container_name: service-core-db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: core_db
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
