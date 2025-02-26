@@ -22,11 +22,6 @@ public class Route {
     @Column(name = "distance")
     private Double distance;
 
-    @Column(name = "estimated_time")
-    private Integer estimatedTime;
-
-    @Column(name = "difficulty_level", columnDefinition = "VARCHAR(50)")
-    private String difficultyLevel;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -55,12 +50,10 @@ public class Route {
     public Route() {
     }
 
-    public Route(Integer routeId, String name, Double distance, Integer estimatedTime, String difficultyLevel, Status status) {
+    public Route(Integer routeId, String name, Double distance, Status status) {
         this.routeId = routeId;
         this.name = name;
         this.distance = distance;
-        this.estimatedTime = estimatedTime;
-        this.difficultyLevel = difficultyLevel;
         this.status = status;
     }
 
@@ -87,23 +80,6 @@ public class Route {
     public void setDistance(Double distance) {
         this.distance = distance;
     }
-
-    public Integer getEstimatedTime() {
-        return estimatedTime;
-    }
-
-    public void setEstimatedTime(Integer estimatedTime) {
-        this.estimatedTime = estimatedTime;
-    }
-
-    public String getDifficultyLevel() {
-        return difficultyLevel;
-    }
-
-    public void setDifficultyLevel(String difficultyLevel) {
-        this.difficultyLevel = difficultyLevel;
-    }
-
     public Status getStatus() {
         return status;
     }

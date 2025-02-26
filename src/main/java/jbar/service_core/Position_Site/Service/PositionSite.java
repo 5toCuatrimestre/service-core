@@ -23,6 +23,13 @@ public class PositionSite {
 
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
+
+    @Column(name = "x_location", precision = 8, scale = 6, nullable = false)
+    private Double xLocation;
+
+    @Column(name = "y_location", precision = 8, scale = 6, nullable = false)
+    private Double yLocation;
+
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
@@ -43,11 +50,13 @@ public class PositionSite {
     public PositionSite() {
     }
 
-    public PositionSite(Integer positionSiteId, Position position, Site site, Integer capacity) {
+    public PositionSite(Integer positionSiteId, Position position, Site site, Integer capacity, Double xLocation, Double yLocation) {
         this.positionSiteId = positionSiteId;
         this.position = position;
         this.site = site;
         this.capacity = capacity;
+        this.xLocation = xLocation;
+        this.yLocation = yLocation;
     }
 
     public Integer getPositionSiteId() {
@@ -80,6 +89,22 @@ public class PositionSite {
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public Double getXLocation() {
+        return xLocation;
+    }
+
+    public void setXLocation(Double xLocation) {
+        this.xLocation = xLocation;
+    }
+
+    public Double getYLocation() {
+        return yLocation;
+    }
+
+    public void setYLocation(Double yLocation) {
+        this.yLocation = yLocation;
     }
 
     public Boolean getStatus() {
