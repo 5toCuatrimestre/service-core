@@ -1,5 +1,6 @@
 package jbar.service_core.Position.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jbar.service_core.Position_Site.Service.PositionSite;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
@@ -20,37 +21,45 @@ public class Position {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "status", nullable = false)
-    private Boolean status = true;
-
     @Column(name = "created_at", nullable = false, updatable = false)
+    @JsonIgnore
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @JsonIgnore
     private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
+    @JsonIgnore
     private LocalDateTime deletedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    @OneToMany(mappedBy = "position")
+    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PositionSite> positionSites;
 
-    @OneToMany(mappedBy = "position")
+    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RoutePositionSiteUser> routePositionSiteUsers;
 
-    public Position() {
-    }
+    // 🔹 Constructores
+    public Position() {}
 
-    public Position(Integer positionId, String name, String description, Boolean status) {
-        this.positionId = positionId;
+    public Position(String name, String description) {
         this.name = name;
         this.description = description;
-        this.status = status;
+    }
+
+    // 🔹 Getters y Setters con validaciones
+    public Position(Integer positionId) {
+        this.positionId = positionId;
     }
 
     public Integer getPositionId() {
@@ -66,7 +75,9 @@ public class Position {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name != null && !name.trim().isEmpty()) {
+            this.name = name;
+        }
     }
 
     public String getDescription() {
@@ -74,27 +85,29 @@ public class Position {
     }
 
     public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
+        if (description != null && !description.trim().isEmpty()) {
+            this.description = description;
+        }
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        if (createdAt != null) {
+            this.createdAt = createdAt;
+        }
+    }
+
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+        if (updatedAt != null) {
+            this.updatedAt = updatedAt;
+        }
     }
 
     public LocalDateTime getDeletedAt() {

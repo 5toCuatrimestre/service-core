@@ -1,5 +1,7 @@
 package jbar.service_core.Route.Controller;
 
+import jbar.service_core.Company.Model.Company;
+import jbar.service_core.Company.Model.CompanyDTO;
 import jbar.service_core.Route.Model.Route;
 import jbar.service_core.Route.Model.RouteDTO;
 import jbar.service_core.Route.Model.RouteRepository;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,9 +55,7 @@ public class RouteService {
         Route route = new Route();
         route.setName(routeDTO.getName());
         route.setDistance(routeDTO.getDistance());
-        route.setEstimatedTime(routeDTO.getEstimatedTime());
-        route.setDifficultyLevel(routeDTO.getDifficultyLevel());
-        route.setStatus(Status.valueOf(routeDTO.getStatus().toUpperCase()));
+        route.setStatus(routeDTO.getStatus());
 
         routeRepository.save(route);
         log.info("Route created successfully: {}", route);
@@ -64,21 +65,16 @@ public class RouteService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, RouteDTO routeDTO) {
-        Optional<Route> existingRoute = routeRepository.findById(id);
-        if (existingRoute.isPresent()) {
-            Route route = existingRoute.get();
-            route.setName(routeDTO.getName());
-            route.setDistance(routeDTO.getDistance());
-            route.setEstimatedTime(routeDTO.getEstimatedTime());
-            route.setDifficultyLevel(routeDTO.getDifficultyLevel());
-            route.setStatus(Status.valueOf(routeDTO.getStatus().toUpperCase()));
+        Optional<Route> existingRouteOptional = routeRepository.findById(id);
+        if (existingRouteOptional.isPresent()) {
+            Route route = existingRouteOptional.get();
+            if (routeDTO.getName() != null) route.setName(routeDTO.getName());
+            if (routeDTO.getDistance() != null) route.setDistance(routeDTO.getDistance());
+            route.setUpdatedAt(LocalDateTime.now());
 
             routeRepository.saveAndFlush(route);
-            log.info("Route with id {} updated successfully", id);
             return ResponseEntity.ok(new Message(route, "Route updated", TypesResponse.SUCCESS));
         }
-
-        log.warn("Route with id {} not found for update", id);
         return new ResponseEntity<>(new Message(null, "Route not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
@@ -87,19 +83,12 @@ public class RouteService {
         Optional<Route> route = routeRepository.findById(id);
         if (route.isPresent()) {
             Route existingRoute = route.get();
-            if (existingRoute.getStatus() == Status.ACTIVE) {
-                existingRoute.setStatus(Status.INACTIVE);
-                existingRoute.setDeletedAt(java.time.LocalDateTime.now());
-            } else {
-                existingRoute.setStatus(Status.ACTIVE);
-                existingRoute.setDeletedAt(null);
-            }
+            existingRoute.setStatus(existingRoute.getStatus() == Status.ACTIVE ? Status.INACTIVE : Status.ACTIVE);
+            existingRoute.setDeletedAt(existingRoute.getStatus() == Status.INACTIVE ? LocalDateTime.now() : null);
             routeRepository.save(existingRoute);
-            log.info("Route with id {} status changed", id);
             return new ResponseEntity<>(new Message(existingRoute, "Route status changed", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("Route with id {} not found for status change", id);
-            return new ResponseEntity<>(new Message(null, "Route not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(new Message(null, "Route not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
+
 }

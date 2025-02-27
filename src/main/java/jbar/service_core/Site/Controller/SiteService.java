@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,13 +30,19 @@ public class SiteService {
         this.siteRepository = siteRepository;
     }
 
+    /**
+     * 🔹 Obtener todos los sitios
+     */
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findAll() {
-        List<Site> sites = siteRepository.findAll();
-        log.info("All sites retrieved successfully");
-        return new ResponseEntity<>(new Message(sites, "Sites retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+        List<Site> sites = siteRepository.findByDeletedAtIsNull();
+        log.info("All active sites retrieved successfully.");
+        return new ResponseEntity<>(new Message(sites, "Active sites retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
+    /**
+     * 🔹 Obtener un sitio por ID
+     */
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findById(Integer id) {
         Optional<Site> site = siteRepository.findById(id);
@@ -46,27 +55,37 @@ public class SiteService {
         });
     }
 
+    /**
+     * 🔹 Crear un nuevo sitio
+     */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(SiteDTO siteDTO) {
         Site site = new Site();
         site.setName(siteDTO.getName());
         site.setLocation(siteDTO.getLocation());
         site.setStatus(siteDTO.getStatus() != null ? siteDTO.getStatus() : true);
-        siteRepository.save(site);
+        site.setCreatedAt(LocalDateTime.now());
 
+        siteRepository.save(site);
         log.info("Site created successfully: {}", site);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new Message(site, "Site created", TypesResponse.SUCCESS));
     }
 
+    /**
+     * 🔹 Actualizar un sitio existente
+     */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, SiteDTO siteDTO) {
         Optional<Site> existingSite = siteRepository.findById(id);
         if (existingSite.isPresent()) {
             Site site = existingSite.get();
-            site.setName(siteDTO.getName());
-            site.setLocation(siteDTO.getLocation());
-            site.setStatus(siteDTO.getStatus());
+
+            if (siteDTO.getName() != null) site.setName(siteDTO.getName());
+            if (siteDTO.getLocation() != null) site.setLocation(siteDTO.getLocation());
+            if (siteDTO.getStatus() != null) site.setStatus(siteDTO.getStatus());
+
+            site.setUpdatedAt(LocalDateTime.now());
             siteRepository.saveAndFlush(site);
 
             log.info("Site with id {} updated successfully", id);
@@ -77,16 +96,22 @@ public class SiteService {
         return new ResponseEntity<>(new Message(null, "Site not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * 🔹 Eliminar un sitio (Soft Delete)
+     */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> delete(Integer id) {
-        Optional<Site> site = siteRepository.findById(id);
-        if (site.isPresent()) {
-            siteRepository.delete(site.get());
-            log.info("Site with id {} deleted successfully", id);
-            return new ResponseEntity<>(new Message(null, "Site deleted", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("Site with id {} not found for deletion", id);
-            return new ResponseEntity<>(new Message(null, "Site not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        Optional<Site> siteOptional = siteRepository.findById(id);
+        if (siteOptional.isPresent()) {
+            Site site = siteOptional.get();
+           site.setDeletedAt(LocalDateTime.now());
+            siteRepository.saveAndFlush(site);
+
+            log.info("Site with id {} soft deleted successfully", id);
+            return new ResponseEntity<>(new Message(null, "Site deleted (soft delete)", TypesResponse.SUCCESS), HttpStatus.OK);
         }
+
+        log.warn("Site with id {} not found for deletion", id);
+        return new ResponseEntity<>(new Message(null, "Site not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 }
