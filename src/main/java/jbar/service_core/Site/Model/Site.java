@@ -48,7 +48,10 @@ public class Site {
         updatedAt = LocalDateTime.now();
     }
 
-    public Site() {
+    public Site() {}
+
+    public Site(Integer siteId) {
+        this.siteId = siteId;
     }
 
     public Site(Integer siteId, String name, String location, Boolean status, Company company) {
@@ -101,6 +104,10 @@ public class Site {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {

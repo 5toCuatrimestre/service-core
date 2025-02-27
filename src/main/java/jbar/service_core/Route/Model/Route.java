@@ -1,12 +1,12 @@
 package jbar.service_core.Route.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jbar.service_core.User_Route.Model.UserRoute;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 import jbar.service_core.Util.Enum.Status;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,20 +19,22 @@ public class Route {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "distance")
+    @Column(name = "distance", nullable = false)
     private Double distance;
-
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
+    @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -42,13 +44,12 @@ public class Route {
     }
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<UserRoute> userRoutes = new ArrayList<>();
+    private List<UserRoute> userRoutes;
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<RoutePositionSiteUser> routePositionSiteUsers = new ArrayList<>();
+    private List<RoutePositionSiteUser> routePositionSiteUsers;
 
-    public Route() {
-    }
+    public Route() {}
 
     public Route(Integer routeId, String name, Double distance, Status status) {
         this.routeId = routeId;
@@ -80,6 +81,7 @@ public class Route {
     public void setDistance(Double distance) {
         this.distance = distance;
     }
+
     public Status getStatus() {
         return status;
     }

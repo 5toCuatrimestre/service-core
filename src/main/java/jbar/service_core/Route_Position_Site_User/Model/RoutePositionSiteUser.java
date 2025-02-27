@@ -1,8 +1,9 @@
 package jbar.service_core.Route_Position_Site_User.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jbar.service_core.Route.Model.Route;
 import jbar.service_core.Position.Model.Position;
+import jbar.service_core.Route.Model.Route;
 import jbar.service_core.Site.Model.Site;
 import jbar.service_core.User.Model.User;
 
@@ -30,15 +31,16 @@ public class RoutePositionSiteUser {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @Column(name = "status", nullable = false)
-    private Boolean status = true;
 
+    @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -47,19 +49,17 @@ public class RoutePositionSiteUser {
         updatedAt = LocalDateTime.now();
     }
 
-    public RoutePositionSiteUser() {
-    }
+    // 🔹 Constructores
+    public RoutePositionSiteUser() {}
 
-    public RoutePositionSiteUser(Integer id, Route route, Position position, Site site, User user) {
-        this.id = id;
+    public RoutePositionSiteUser(Route route, Position position, Site site, User user) {
         this.route = route;
         this.position = position;
         this.site = site;
         this.user = user;
     }
 
-    // Getters y Setters
-
+    // 🔹 Getters y Setters con validaciones
     public Integer getId() {
         return id;
     }
@@ -84,38 +84,6 @@ public class RoutePositionSiteUser {
         this.position = position;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
     public Site getSite() {
         return site;
     }
@@ -130,5 +98,27 @@ public class RoutePositionSiteUser {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        if (updatedAt != null) {
+            this.updatedAt = updatedAt;
+        }
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

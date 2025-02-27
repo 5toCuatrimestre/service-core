@@ -4,10 +4,13 @@ import jbar.service_core.Company.Model.CompanyDTO;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/company")
+@RequestMapping("/companies") // REST recomendado en plural
+@CrossOrigin(origins = "*") // Configurar según tu frontend
+@Validated
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -17,7 +20,7 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Message> getAllCompanies() {
         return companyService.findAll();
     }
@@ -28,12 +31,12 @@ public class CompanyController {
     }
 
     @PostMapping
-    public ResponseEntity<Message> createCompany(@RequestBody CompanyDTO companyDTO) {
+    public ResponseEntity<Message> createCompany(@RequestBody @Validated(CompanyDTO.Create.class) CompanyDTO companyDTO) {
         return companyService.create(companyDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Message> updateCompany(@PathVariable Integer id, @RequestBody CompanyDTO companyDTO) {
+    public ResponseEntity<Message> updateCompany(@PathVariable Integer id, @RequestBody @Validated(CompanyDTO.Update.class) CompanyDTO companyDTO) {
         return companyService.update(id, companyDTO);
     }
 

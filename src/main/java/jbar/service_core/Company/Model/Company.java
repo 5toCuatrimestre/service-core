@@ -1,9 +1,8 @@
 package jbar.service_core.Company.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jbar.service_core.Site.Model.Site;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "company")
@@ -22,30 +21,24 @@ public class Company {
     private Boolean status = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @JsonIgnore
+    private LocalDateTime createdAt;
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Site> sites;
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
     public Company() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public Company(Integer companyId, String name, String address, Boolean status) {
-        this.companyId = companyId;
+    public Company(String name, String address) {
         this.name = name;
         this.address = address;
-        this.status = status;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -73,16 +66,12 @@ public class Company {
         this.address = address;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -99,13 +88,5 @@ public class Company {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public List<Site> getSites() {
-        return sites;
-    }
-
-    public void setSites(List<Site> sites) {
-        this.sites = sites;
     }
 }

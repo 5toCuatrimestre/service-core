@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +51,7 @@ public class CompanyService {
         Company company = new Company();
         company.setName(companyDTO.getName());
         company.setAddress(companyDTO.getAddress());
-        company.setStatus(companyDTO.getStatus());
+        company.setCreatedAt(LocalDateTime.now());
         companyRepository.save(company);
 
         log.info("Company created successfully: {}", company);
@@ -65,31 +64,29 @@ public class CompanyService {
         Optional<Company> existingCompanyOptional = companyRepository.findById(id);
         if (existingCompanyOptional.isPresent()) {
             Company company = existingCompanyOptional.get();
-            company.setName(companyDTO.getName());
-            company.setAddress(companyDTO.getAddress());
-            company.setStatus(companyDTO.getStatus());
+            if (companyDTO.getName() != null) company.setName(companyDTO.getName());
+            if (companyDTO.getAddress() != null) company.setAddress(companyDTO.getAddress());
             company.setUpdatedAt(LocalDateTime.now());
 
             companyRepository.saveAndFlush(company);
-
-            log.info("Company with id {} updated successfully", id);
             return ResponseEntity.ok(new Message(company, "Company updated", TypesResponse.SUCCESS));
         }
+        return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+    }
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<Message> delete(Integer id) {
+        Optional<Company> companyOptional = companyRepository.findById(id);
+        if (companyOptional.isPresent()) {
+            Company company = companyOptional.get();
+            company.setDeletedAt(LocalDateTime.now()); // Soft delete
+            companyRepository.save(company);
 
-        log.warn("Company with id {} not found for update", id);
+            log.info("Company with id {} soft deleted successfully", id);
+            return new ResponseEntity<>(new Message(null, "Company deleted (soft delete)", TypesResponse.SUCCESS), HttpStatus.OK);
+        }
+
+        log.warn("Company with id {} not found for deletion", id);
         return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<Message> delete(Integer id) {
-        Optional<Company> company = companyRepository.findById(id);
-        if (company.isPresent()) {
-            companyRepository.delete(company.get());
-            log.info("Company with id {} deleted successfully", id);
-            return new ResponseEntity<>(new Message(null, "Company deleted", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("Company with id {} not found for deletion", id);
-            return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-        }
-    }
 }

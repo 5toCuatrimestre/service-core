@@ -1,5 +1,6 @@
 package jbar.service_core.Position_Site.Service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jbar.service_core.Position.Model.Position;
 import jbar.service_core.Site.Model.Site;
@@ -24,21 +25,24 @@ public class PositionSite {
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
 
-    @Column(name = "x_location", precision = 8, scale = 6, nullable = false)
+    @Column(name = "x_location", nullable = false)
     private Double xLocation;
 
-    @Column(name = "y_location", precision = 8, scale = 6, nullable = false)
+    @Column(name = "y_location", nullable = false)
     private Double yLocation;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -48,6 +52,7 @@ public class PositionSite {
     }
 
     public PositionSite() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public PositionSite(Integer positionSiteId, Position position, Site site, Integer capacity, Double xLocation, Double yLocation) {
@@ -57,6 +62,7 @@ public class PositionSite {
         this.capacity = capacity;
         this.xLocation = xLocation;
         this.yLocation = yLocation;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Integer getPositionSiteId() {
@@ -88,7 +94,9 @@ public class PositionSite {
     }
 
     public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
+        if (capacity != null && capacity > 0) {
+            this.capacity = capacity;
+        }
     }
 
     public Double getXLocation() {
@@ -96,7 +104,9 @@ public class PositionSite {
     }
 
     public void setXLocation(Double xLocation) {
-        this.xLocation = xLocation;
+        if (xLocation != null) {
+            this.xLocation = xLocation;
+        }
     }
 
     public Double getYLocation() {
@@ -104,7 +114,9 @@ public class PositionSite {
     }
 
     public void setYLocation(Double yLocation) {
-        this.yLocation = yLocation;
+        if (yLocation != null) {
+            this.yLocation = yLocation;
+        }
     }
 
     public Boolean getStatus() {
@@ -120,7 +132,9 @@ public class PositionSite {
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        if (createdAt != null) {
+            this.createdAt = createdAt;
+        }
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -128,7 +142,9 @@ public class PositionSite {
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+        if (updatedAt != null) {
+            this.updatedAt = updatedAt;
+        }
     }
 
     public LocalDateTime getDeletedAt() {
