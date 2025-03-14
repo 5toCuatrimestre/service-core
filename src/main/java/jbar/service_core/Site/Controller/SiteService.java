@@ -1,5 +1,7 @@
 package jbar.service_core.Site.Controller;
 
+import jbar.service_core.Company.Model.Company;
+import jbar.service_core.Company.Model.CompanyRepository;
 import jbar.service_core.Site.Model.Site;
 import jbar.service_core.Site.Model.SiteDTO;
 import jbar.service_core.Site.Model.SiteRepository;
@@ -12,9 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,15 +23,14 @@ import java.util.Optional;
 public class SiteService {
     private final Logger log = LoggerFactory.getLogger(SiteService.class);
     private final SiteRepository siteRepository;
+    private final CompanyRepository companyRepository;
 
     @Autowired
-    public SiteService(SiteRepository siteRepository) {
+    public SiteService(SiteRepository siteRepository, CompanyRepository companyRepository) {
         this.siteRepository = siteRepository;
+        this.companyRepository = companyRepository;
     }
 
-    /**
-     * 🔹 Obtener todos los sitios
-     */
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findAll() {
         List<Site> sites = siteRepository.findByDeletedAtIsNull();
@@ -40,9 +38,6 @@ public class SiteService {
         return new ResponseEntity<>(new Message(sites, "Active sites retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
-    /**
-     * 🔹 Obtener un sitio por ID
-     */
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findById(Integer id) {
         Optional<Site> site = siteRepository.findById(id);
@@ -55,26 +50,29 @@ public class SiteService {
         });
     }
 
-    /**
-     * 🔹 Crear un nuevo sitio
-     */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(SiteDTO siteDTO) {
+        // ✅ Obtener la empresa por defecto o crearla si no existe
+        Company company = companyRepository.findById(1)
+                .orElseGet(() -> {
+                    log.warn("Default Company ID 1 not found. Creating it.");
+                    Company defaultCompany = new Company("Default Company", "Default Address");
+                    return companyRepository.save(defaultCompany);
+                });
+
         Site site = new Site();
         site.setName(siteDTO.getName());
         site.setLocation(siteDTO.getLocation());
         site.setStatus(siteDTO.getStatus() != null ? siteDTO.getStatus() : true);
+        site.setCompany(company);
         site.setCreatedAt(LocalDateTime.now());
 
         siteRepository.save(site);
-        log.info("Site created successfully: {}", site);
+        log.info("Site created successfully with default company ID 1: {}", site);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Message(site, "Site created", TypesResponse.SUCCESS));
+                .body(new Message(site, "Site created with default company", TypesResponse.SUCCESS));
     }
 
-    /**
-     * 🔹 Actualizar un sitio existente
-     */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, SiteDTO siteDTO) {
         Optional<Site> existingSite = siteRepository.findById(id);
@@ -96,15 +94,12 @@ public class SiteService {
         return new ResponseEntity<>(new Message(null, "Site not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * 🔹 Eliminar un sitio (Soft Delete)
-     */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> delete(Integer id) {
         Optional<Site> siteOptional = siteRepository.findById(id);
         if (siteOptional.isPresent()) {
             Site site = siteOptional.get();
-           site.setDeletedAt(LocalDateTime.now());
+            site.setDeletedAt(LocalDateTime.now());
             siteRepository.saveAndFlush(site);
 
             log.info("Site with id {} soft deleted successfully", id);

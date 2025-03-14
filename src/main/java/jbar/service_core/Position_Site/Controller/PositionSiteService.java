@@ -1,10 +1,14 @@
 package jbar.service_core.Position_Site.Controller;
 
+import jbar.service_core.Position.Model.Position;
+import jbar.service_core.Position.Model.PositionRepository;
 import jbar.service_core.Position_Site.Service.PositionSite;
-import jbar.service_core.Position_Site.Service.PositionSiteRepository;
 import jbar.service_core.Position_Site.Service.PositionSiteDTO;
-import jbar.service_core.Util.Response.Message;
+import jbar.service_core.Position_Site.Service.PositionSiteRepository;
+import jbar.service_core.Site.Model.Site;
+import jbar.service_core.Site.Model.SiteRepository;
 import jbar.service_core.Util.Enum.TypesResponse;
+import jbar.service_core.Util.Response.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +26,18 @@ import java.util.Optional;
 public class PositionSiteService {
     private final Logger log = LoggerFactory.getLogger(PositionSiteService.class);
     private final PositionSiteRepository positionSiteRepository;
+    private final PositionRepository positionRepository;
+    private final SiteRepository siteRepository;
 
     @Autowired
-    public PositionSiteService(PositionSiteRepository positionSiteRepository) {
+    public PositionSiteService(
+            PositionSiteRepository positionSiteRepository,
+            PositionRepository positionRepository,
+            SiteRepository siteRepository
+    ) {
         this.positionSiteRepository = positionSiteRepository;
+        this.positionRepository = positionRepository;
+        this.siteRepository = siteRepository;
     }
 
     /**
@@ -58,19 +70,49 @@ public class PositionSiteService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(PositionSiteDTO positionSiteDTO) {
+        log.info("Creating PositionSite with DTO: {}", positionSiteDTO);
+
+        // 1️⃣ Validamos si Position y Site existen en la BD
+        Optional<Position> positionOptional = positionRepository.findById(positionSiteDTO.getPositionId());
+        Optional<Site> siteOptional = siteRepository.findById(positionSiteDTO.getSiteId());
+
+        if (positionOptional.isEmpty()) {
+            log.error("Position with ID {} not found", positionSiteDTO.getPositionId());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new Message(null, "Position not found", TypesResponse.ERROR));
+        }
+
+        if (siteOptional.isEmpty()) {
+            log.error("Site with ID {} not found", positionSiteDTO.getSiteId());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new Message(null, "Site not found", TypesResponse.ERROR));
+        }
+
+        // 2️⃣ Creamos la entidad con valores del DTO
         PositionSite positionSite = new PositionSite();
-        positionSite.setPosition(positionSiteDTO.getPosition());
-        positionSite.setSite(positionSiteDTO.getSite());
-        positionSite.setCapacity(positionSiteDTO.getCapacity());
-        positionSite.setXLocation(positionSiteDTO.getXLocation());
-        positionSite.setYLocation(positionSiteDTO.getYLocation());
+        positionSite.setPosition(positionOptional.get());
+        positionSite.setSite(siteOptional.get());
+        positionSite.setCapacity(positionSiteDTO.getCapacity() != null ? positionSiteDTO.getCapacity() : 0);
+        positionSite.setXLocation(positionSiteDTO.getXLocation() != null ? positionSiteDTO.getXLocation() : 0.0);
+        positionSite.setYLocation(positionSiteDTO.getYLocation() != null ? positionSiteDTO.getYLocation() : 0.0);
+        positionSite.setStatus(true);
         positionSite.setCreatedAt(LocalDateTime.now());
 
-        positionSiteRepository.saveAndFlush(positionSite);
+        log.info("Saving PositionSite: {}", positionSite);
 
-        log.info("PositionSite created successfully: {}", positionSite);
+        // 3️⃣ Guardamos en la base de datos
+        PositionSite savedPositionSite = positionSiteRepository.save(positionSite);
+
+        // 4️⃣ Verificamos si se guardó correctamente
+        if (savedPositionSite.getPositionSiteId() == null) {
+            log.error("Failed to save PositionSite");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new Message(null, "Failed to create PositionSite", TypesResponse.ERROR));
+        }
+
+        log.info("PositionSite created successfully: {}", savedPositionSite);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Message(positionSite, "PositionSite created", TypesResponse.SUCCESS));
+                .body(new Message(savedPositionSite, "PositionSite created", TypesResponse.SUCCESS));
     }
 
     /**
