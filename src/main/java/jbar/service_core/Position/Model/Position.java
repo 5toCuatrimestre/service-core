@@ -3,7 +3,7 @@ package jbar.service_core.Position.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jbar.service_core.Position_Site.Service.PositionSite;
-import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,11 +43,11 @@ public class Position {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // 🔹 Relación con PositionSite
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PositionSite> positionSites;
 
-    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<RoutePositionSiteUser> routePositionSiteUsers;
+
 
     // 🔹 Constructores
     public Position() {}
@@ -57,11 +57,12 @@ public class Position {
         this.description = description;
     }
 
-    // 🔹 Getters y Setters con validaciones
+    // 🔹 Constructor corregido para aceptar un ID
     public Position(Integer positionId) {
         this.positionId = positionId;
     }
 
+    // 🔹 Getters y Setters
     public Integer getPositionId() {
         return positionId;
     }
@@ -93,21 +94,17 @@ public class Position {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        if (createdAt != null) {
-            this.createdAt = createdAt;
-        }
-    }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        if (updatedAt != null) {
-            this.updatedAt = updatedAt;
-        }
+        this.updatedAt = updatedAt;
     }
 
     public LocalDateTime getDeletedAt() {
@@ -126,11 +123,5 @@ public class Position {
         this.positionSites = positionSites;
     }
 
-    public List<RoutePositionSiteUser> getRoutePositionSiteUsers() {
-        return routePositionSiteUsers;
-    }
 
-    public void setRoutePositionSiteUsers(List<RoutePositionSiteUser> routePositionSiteUsers) {
-        this.routePositionSiteUsers = routePositionSiteUsers;
-    }
 }

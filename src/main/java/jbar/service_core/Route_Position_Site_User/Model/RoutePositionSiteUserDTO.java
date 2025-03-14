@@ -11,19 +11,16 @@ public class RoutePositionSiteUserDTO {
     public interface Create {}
     public interface Update {}
 
+
     @Schema(description = "Route ID", example = "1")
     @NotNull(groups = {Create.class, Update.class}, message = "Route ID cannot be null.")
     private Integer routeId;
 
-    @Schema(description = "Position ID", example = "3")
-    @NotNull(groups = {Create.class, Update.class}, message = "Position ID cannot be null.")
-    private Integer positionId;
+    @Schema(description = "PositionSite ID", example = "5")
+    @NotNull(groups = {Create.class, Update.class}, message = "PositionSite ID cannot be null.")
+    private Integer positionSiteId;
 
-    @Schema(description = "Site ID", example = "2")
-    @NotNull(groups = {Create.class, Update.class}, message = "Site ID cannot be null.")
-    private Integer siteId;
-
-    @Schema(description = "User ID", example = "5")
+    @Schema(description = "User ID", example = "7")
     @NotNull(groups = {Create.class, Update.class}, message = "User ID cannot be null.")
     private Integer userId;
 
@@ -40,10 +37,9 @@ public class RoutePositionSiteUserDTO {
     // 🔹 Constructores
     public RoutePositionSiteUserDTO() {}
 
-    public RoutePositionSiteUserDTO(Integer routeId, Integer positionId, Integer siteId, Integer userId, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+    public RoutePositionSiteUserDTO(Integer routeId, Integer positionSiteId, Integer userId, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
         this.routeId = routeId;
-        this.positionId = positionId;
-        this.siteId = siteId;
+        this.positionSiteId = positionSiteId;
         this.userId = userId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -59,20 +55,12 @@ public class RoutePositionSiteUserDTO {
         this.routeId = routeId;
     }
 
-    public Integer getPositionId() {
-        return positionId;
+    public Integer getPositionSiteId() {
+        return positionSiteId;
     }
 
-    public void setPositionId(Integer positionId) {
-        this.positionId = positionId;
-    }
-
-    public Integer getSiteId() {
-        return siteId;
-    }
-
-    public void setSiteId(Integer siteId) {
-        this.siteId = siteId;
+    public void setPositionSiteId(Integer positionSiteId) {
+        this.positionSiteId = positionSiteId;
     }
 
     public Integer getUserId() {
