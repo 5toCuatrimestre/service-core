@@ -1,10 +1,9 @@
 package jbar.service_core.Site.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jbar.service_core.Company.Model.Company;
 import jbar.service_core.Position_Site.Service.PositionSite;
-import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,22 +26,22 @@ public class Site {
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
-
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
+    //PONER JSONIGNORE
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PositionSite> positionSites;
-
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoutePositionSiteUser> routePositionSiteUsers;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @JsonIgnore
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
@@ -132,13 +131,5 @@ public class Site {
 
     public void setPositionSites(List<PositionSite> positionSites) {
         this.positionSites = positionSites;
-    }
-
-    public List<RoutePositionSiteUser> getRoutePositionSiteUsers() {
-        return routePositionSiteUsers;
-    }
-
-    public void setRoutePositionSiteUsers(List<RoutePositionSiteUser> routePositionSiteUsers) {
-        this.routePositionSiteUsers = routePositionSiteUsers;
     }
 }

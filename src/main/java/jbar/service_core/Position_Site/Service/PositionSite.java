@@ -1,11 +1,14 @@
 package jbar.service_core.Position_Site.Service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jbar.service_core.Position.Model.Position;
+import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 import jbar.service_core.Site.Model.Site;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "position_site")
@@ -16,10 +19,12 @@ public class PositionSite {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id", nullable = false)
+    @JsonIgnore
     private Position position;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id", nullable = false)
+    @JsonIgnore
     private Site site;
 
     @Column(name = "capacity", nullable = false)
@@ -45,26 +50,31 @@ public class PositionSite {
     @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+ @JsonIgnore
+    @OneToMany(mappedBy = "positionSite", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<RoutePositionSiteUser> routePositionSiteUsers;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    public PositionSite() {
+    @PrePersist
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public PositionSite(Integer positionSiteId, Position position, Site site, Integer capacity, Double xLocation, Double yLocation) {
-        this.positionSiteId = positionSiteId;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public PositionSite() {}
+
+    public PositionSite(Position position, Site site, Integer capacity, Double xLocation, Double yLocation) {
         this.position = position;
         this.site = site;
         this.capacity = capacity;
         this.xLocation = xLocation;
         this.yLocation = yLocation;
-        this.createdAt = LocalDateTime.now();
     }
 
+    // 🔹 Getters y Setters
     public Integer getPositionSiteId() {
         return positionSiteId;
     }
@@ -94,9 +104,7 @@ public class PositionSite {
     }
 
     public void setCapacity(Integer capacity) {
-        if (capacity != null && capacity > 0) {
-            this.capacity = capacity;
-        }
+        this.capacity = capacity;
     }
 
     public Double getXLocation() {
@@ -104,9 +112,7 @@ public class PositionSite {
     }
 
     public void setXLocation(Double xLocation) {
-        if (xLocation != null) {
-            this.xLocation = xLocation;
-        }
+        this.xLocation = xLocation;
     }
 
     public Double getYLocation() {
@@ -114,9 +120,7 @@ public class PositionSite {
     }
 
     public void setYLocation(Double yLocation) {
-        if (yLocation != null) {
-            this.yLocation = yLocation;
-        }
+        this.yLocation = yLocation;
     }
 
     public Boolean getStatus() {
@@ -132,9 +136,7 @@ public class PositionSite {
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-        if (createdAt != null) {
-            this.createdAt = createdAt;
-        }
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -142,9 +144,7 @@ public class PositionSite {
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        if (updatedAt != null) {
-            this.updatedAt = updatedAt;
-        }
+        this.updatedAt = updatedAt;
     }
 
     public LocalDateTime getDeletedAt() {
@@ -153,5 +153,13 @@ public class PositionSite {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public List<RoutePositionSiteUser> getRoutePositionSiteUsers() {
+        return routePositionSiteUsers;
+    }
+
+    public void setRoutePositionSiteUsers(List<RoutePositionSiteUser> routePositionSiteUsers) {
+        this.routePositionSiteUsers = routePositionSiteUsers;
     }
 }

@@ -1,40 +1,32 @@
-package jbar.service_core.Route.Model;
+package jbar.service_core.Menu.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jbar.service_core.User_Route.Model.UserRoute;
-import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
-import jbar.service_core.Util.Enum.Status;
-import jbar.service_core.Position_Site.Service.PositionSite;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import jbar.service_core.Menu_Product.Model.MenuProduct;
 
 @Entity
-@Table(name = "route")
-public class Route {
+@Table(name = "menu")
+public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer routeId;
+    private Integer menuId;
 
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
+    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
+    private String description;
 
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.ACTIVE;
+    private Boolean status = true;
 
-    @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @JsonIgnore
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -43,24 +35,25 @@ public class Route {
         updatedAt = LocalDateTime.now();
     }
 
-    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<UserRoute> userRoutes;
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MenuProduct> menuProducts;
 
-    public Route() {}
+    public Menu() {
+    }
 
-    public Route(Integer routeId, String name, Double distance, Status status) {
-        this.routeId = routeId;
+    public Menu(Integer menuId, String name, String description, Boolean status) {
+        this.menuId = menuId;
         this.name = name;
-
+        this.description = description;
         this.status = status;
     }
 
-    public Integer getRouteId() {
-        return routeId;
+    public Integer getMenuId() {
+        return menuId;
     }
 
-    public void setRouteId(Integer routeId) {
-        this.routeId = routeId;
+    public void setMenuId(Integer menuId) {
+        this.menuId = menuId;
     }
 
     public String getName() {
@@ -71,12 +64,19 @@ public class Route {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
-    public Status getStatus() {
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 
@@ -100,11 +100,11 @@ public class Route {
         this.deletedAt = deletedAt;
     }
 
-    public List<UserRoute> getUserRoutes() {
-        return userRoutes;
+    public List<MenuProduct> getMenuProducts() {
+        return menuProducts;
     }
 
-    public void setUserRoutes(List<UserRoute> userRoutes) {
-        this.userRoutes = userRoutes;
+    public void setMenuProducts(List<MenuProduct> menuProducts) {
+        this.menuProducts = menuProducts;
     }
 }

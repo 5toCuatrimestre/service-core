@@ -11,11 +11,8 @@ public interface RoutePositionSiteUserRepository extends JpaRepository<RoutePosi
     // 🔹 Buscar por Route ID
     List<RoutePositionSiteUser> findByRoute_RouteId(Integer routeId);
 
-    // 🔹 Buscar por Position ID
-    List<RoutePositionSiteUser> findByPosition_PositionId(Integer positionId);
-
-    // 🔹 Buscar por Site ID
-    List<RoutePositionSiteUser> findBySite_SiteId(Integer siteId);
+    // 🔹 Buscar por PositionSite ID (Corrección)
+    List<RoutePositionSiteUser> findByPositionSite_PositionSiteId(Integer positionSiteId);
 
     // 🔹 Buscar por User ID
     List<RoutePositionSiteUser> findByUser_UserId(Integer userId);
