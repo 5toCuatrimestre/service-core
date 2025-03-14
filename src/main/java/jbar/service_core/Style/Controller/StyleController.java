@@ -4,6 +4,7 @@ import jbar.service_core.Style.Model.StyleDTO;
 import jbar.service_core.Util.Enum.TypesResponse;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,8 @@ public class StyleController {
     }
 
     /**
-     * 🔹 Obtener todos los estilos disponibles.
+     * Get all styles.
+     * @return List of styles.
      */
     @GetMapping("/all")
     public ResponseEntity<Message> getAllStyles() {
@@ -27,7 +29,9 @@ public class StyleController {
     }
 
     /**
-     * 🔹 Obtener un estilo específico por su ID.
+     * Get a specific style by ID.
+     * @param id ID of the style.
+     * @return Style details if found.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Message> getStyleById(@PathVariable Integer id) {
@@ -35,7 +39,9 @@ public class StyleController {
     }
 
     /**
-     * 🔹 Crear un nuevo estilo.
+     * Create a new style.
+     * @param styleDTO Data for the new style.
+     * @return Created style response.
      */
     @PostMapping
     public ResponseEntity<Message> createStyle(@RequestBody StyleDTO styleDTO) {
@@ -46,7 +52,10 @@ public class StyleController {
     }
 
     /**
-     * 🔹 Actualizar un estilo existente.
+     * Update an existing style.
+     * @param id ID of the style to update.
+     * @param styleDTO New data for the style.
+     * @return Updated style response.
      */
     @PutMapping("/{id}")
     public ResponseEntity<Message> updateStyle(@PathVariable Integer id, @RequestBody StyleDTO styleDTO) {
@@ -57,15 +66,9 @@ public class StyleController {
     }
 
     /**
-     * 🔹 Activar un estilo y desactivar los demás automáticamente.
-     */
-    @PutMapping("/activate/{id}")
-    public ResponseEntity<Message> activateStyle(@PathVariable Integer id) {
-        return styleService.activateStyle(id);
-    }
-
-    /**
-     * 🔹 Cambiar el estado de un estilo (Soft Delete).
+     * Change status of a style (Soft Delete).
+     * @param id ID of the style.
+     * @return Response indicating success or failure.
      */
     @PutMapping("/status/{id}")
     public ResponseEntity<Message> changeStyleStatus(@PathVariable Integer id) {

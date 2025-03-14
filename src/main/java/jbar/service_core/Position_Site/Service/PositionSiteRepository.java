@@ -7,5 +7,8 @@ import java.util.List;
 
 @Repository
 public interface PositionSiteRepository extends JpaRepository<PositionSite, Integer> {
+
+    // Buscar PositionSites activos (soft delete)
     List<PositionSite> findByDeletedAtIsNull();
+
 }

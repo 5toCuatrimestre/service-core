@@ -1,171 +1,90 @@
 package jbar.service_core.Route_Position_Site_User.Controller;
 
-import jbar.service_core.Position_Site.Service.PositionSite;
-import jbar.service_core.Position_Site.Service.PositionSiteRepository;
-import jbar.service_core.Route.Model.Route;
+import jbar.service_core.Position.Model.PositionRepository;
 import jbar.service_core.Route.Model.RouteRepository;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUserDTO;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUserRepository;
-import jbar.service_core.User.Model.User;
+import jbar.service_core.Site.Model.SiteRepository;
 import jbar.service_core.User.Model.UserRepository;
-import jbar.service_core.Util.Enum.TypesResponse;
 import jbar.service_core.Util.Response.Message;
+import jbar.service_core.Util.Enum.TypesResponse;
+import jbar.service_core.Site.Model.Site;
+import jbar.service_core.Route.Model.Route;
+import jbar.service_core.Position.Model.Position;
+
+import jbar.service_core.User.Model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class RoutePositionSiteUserService {
     private final Logger log = LoggerFactory.getLogger(RoutePositionSiteUserService.class);
     private final RoutePositionSiteUserRepository repository;
     private final RouteRepository routeRepository;
-    private final PositionSiteRepository positionSiteRepository;  // 🔹 Se usa PositionSiteRepository
+    private final PositionRepository positionRepository;
+    private final SiteRepository siteRepository;
     private final UserRepository userRepository;
 
     @Autowired
     public RoutePositionSiteUserService(
             RoutePositionSiteUserRepository repository,
             RouteRepository routeRepository,
-            PositionSiteRepository positionSiteRepository,
+            PositionRepository positionRepository,
+            SiteRepository siteRepository,
             UserRepository userRepository
     ) {
         this.repository = repository;
         this.routeRepository = routeRepository;
-        this.positionSiteRepository = positionSiteRepository;
+        this.positionRepository = positionRepository;
+        this.siteRepository = siteRepository;
         this.userRepository = userRepository;
     }
 
-    /**
-     * 🔹 Obtener todas las relaciones activas (soft delete aplicado)
-     */
-    @Transactional(readOnly = true)
-    public ResponseEntity<Message> findAll() {
-        List<RoutePositionSiteUser> entities = repository.findByDeletedAtIsNull();
-        log.info("All active RoutePositionSiteUsers retrieved successfully");
-        return ResponseEntity.ok(new Message(entities, "Active RoutePositionSiteUsers retrieved", TypesResponse.SUCCESS));
-    }
-
-    /**
-     * 🔹 Obtener una relación por ID
-     */
-    @Transactional(readOnly = true)
-    public ResponseEntity<Message> findById(Integer id) {
-        Optional<RoutePositionSiteUser> entity = repository.findById(id);
-        if (entity.isPresent()) {
-            log.info("RoutePositionSiteUser with id {} retrieved successfully", id);
-            return ResponseEntity.ok(new Message(entity.get(), "RoutePositionSiteUser found", TypesResponse.SUCCESS));
-        }
-        log.warn("RoutePositionSiteUser with id {} not found", id);
-        return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-    }
-
-    /**
-     * 🔹 Crear una nueva relación Route-PositionSite-User
-     */
-    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(RoutePositionSiteUserDTO dto) {
         try {
-            // Verificar que la ruta existe
             Optional<Route> route = routeRepository.findById(dto.getRouteId());
             if (route.isEmpty()) {
-                log.warn("Route with ID {} not found", dto.getRouteId());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new Message(null, "Route not found", TypesResponse.ERROR));
+                log.warn("Route with id {} not found", dto.getRouteId());
+                return new ResponseEntity<>(new Message(null, "Route not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
             }
 
-            // Verificar que el sitio de posición existe
-            Optional<PositionSite> positionSite = positionSiteRepository.findById(dto.getPositionSiteId());
-            if (positionSite.isEmpty()) {
-                log.warn("PositionSite with ID {} not found", dto.getPositionSiteId());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new Message(null, "PositionSite not found", TypesResponse.ERROR));
+            Optional<Position> position = positionRepository.findById(dto.getPositionId());
+            if (position.isEmpty()) {
+                log.warn("Position with id {} not found", dto.getPositionId());
+                return new ResponseEntity<>(new Message(null, "Position not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
             }
 
-            // Verificar que el usuario existe
+            Optional<Site> site = siteRepository.findById(dto.getSiteId());
+            if (site.isEmpty()) {
+                log.warn("Site with id {} not found", dto.getSiteId());
+                return new ResponseEntity<>(new Message(null, "Site not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
             Optional<User> user = userRepository.findById(dto.getUserId());
             if (user.isEmpty()) {
-                log.warn("User with ID {} not found", dto.getUserId());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new Message(null, "User not found", TypesResponse.ERROR));
+                log.warn("User with id {} not found", dto.getUserId());
+                return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
             }
 
-            // Crear la entidad RoutePositionSiteUser
             RoutePositionSiteUser entity = new RoutePositionSiteUser();
             entity.setRoute(route.get());
-            entity.setPositionSite(positionSite.get());
-            entity.setUserId(user.get()); // 🔹 Ahora asignamos correctamente el usuario
-            entity.setCreatedAt(LocalDateTime.now());
-
-            // Guardar la entidad
+            entity.setPosition(position.get());
+            entity.setSite(site.get());
+            entity.setUser(user.get());
             repository.save(entity);
 
             log.info("RoutePositionSiteUser created successfully: {}", entity);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new Message(entity, "RoutePositionSiteUser created", TypesResponse.SUCCESS));
-
+            return new ResponseEntity<>(new Message(entity, "RoutePositionSiteUser created", TypesResponse.SUCCESS), HttpStatus.CREATED);
         } catch (Exception e) {
             log.error("Error creating RoutePositionSiteUser: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new Message(null, "Error creating RoutePositionSiteUser", TypesResponse.ERROR));
+            return new ResponseEntity<>(new Message(null, "Error creating RoutePositionSiteUser", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<Message> update(Integer id, RoutePositionSiteUserDTO dto) {
-        Optional<RoutePositionSiteUser> existingEntity = repository.findById(id);
-        if (existingEntity.isPresent()) {
-            RoutePositionSiteUser entity = existingEntity.get();
-
-            Optional<Route> route = routeRepository.findById(dto.getRouteId());
-            Optional<PositionSite> positionSite = positionSiteRepository.findById(dto.getPositionSiteId());
-            Optional<User> user = userRepository.findById(dto.getUserId());
-
-            if (route.isEmpty() || positionSite.isEmpty() || user.isEmpty()) {
-                log.warn("One or more entities not found for RoutePositionSiteUser update");
-                return new ResponseEntity<>(new Message(null, "Invalid data provided", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-            }
-
-            entity.setRoute(route.get());
-            entity.setPositionSite(positionSite.get());
-            entity.setUserId(user.get());
-            entity.setUpdatedAt(LocalDateTime.now());
-            repository.saveAndFlush(entity);
-
-            log.info("RoutePositionSiteUser with id {} updated successfully", id);
-            return ResponseEntity.ok(new Message(entity, "RoutePositionSiteUser updated", TypesResponse.SUCCESS));
-        }
-
-        log.warn("RoutePositionSiteUser with id {} not found for update", id);
-        return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-    }
-
-
-    /**
-     * 🔹 Eliminar (soft delete) una relación Route-PositionSite-User
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<Message> delete(Integer id) {
-        Optional<RoutePositionSiteUser> entity = repository.findById(id);
-        if (entity.isPresent()) {
-            RoutePositionSiteUser routePositionSiteUser = entity.get();
-            routePositionSiteUser.setDeletedAt(LocalDateTime.now());
-            repository.save(routePositionSiteUser);
-
-            log.info("RoutePositionSiteUser with id {} soft deleted successfully", id);
-            return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser deleted (soft delete)", TypesResponse.SUCCESS), HttpStatus.OK);
-        }
-
-        log.warn("RoutePositionSiteUser with id {} not found for deletion", id);
-        return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 }

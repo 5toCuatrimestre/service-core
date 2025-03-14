@@ -11,13 +11,17 @@ public class RouteDTO {
     @NotBlank(message = "Route name cannot be blank.")
     private String name;
 
+    @NotNull(message = "Route distance cannot be null.")
+    private Double distance;
+
     @NotNull(message = "Route status cannot be null.")
     private Status status;
 
     public RouteDTO() {}
 
-    public RouteDTO(String name, Status status) {
+    public RouteDTO(String name, Double distance, Status status) {
         this.name = name;
+        this.distance = distance;
         this.status = status;
     }
 
@@ -27,6 +31,14 @@ public class RouteDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public Status getStatus() {

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "company")
 public class Company {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer companyId;
@@ -15,7 +14,7 @@ public class Company {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "address", columnDefinition = "TEXT")
+    @Column(name = "address", columnDefinition = "TEXT", nullable = true)
     private String address;
 
     @Column(name = "status", nullable = false)
@@ -33,25 +32,16 @@ public class Company {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // 🔹 Constructor por defecto
     public Company() {
         this.createdAt = LocalDateTime.now();
     }
 
-    // 🔹 Constructor con parámetros
     public Company(String name, String address) {
         this.name = name;
         this.address = address;
         this.createdAt = LocalDateTime.now();
     }
 
-    // 🔹 Hook para actualizar automáticamente `updatedAt`
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    // 🔹 Getters y Setters
     public Integer getCompanyId() {
         return companyId;
     }
@@ -74,14 +64,6 @@ public class Company {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {

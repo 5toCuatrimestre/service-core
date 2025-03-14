@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jbar.service_core.User_Route.Model.UserRoute;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
 import jbar.service_core.Util.Enum.Status;
-import jbar.service_core.Position_Site.Service.PositionSite;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,8 @@ public class Route {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-
+    @Column(name = "distance", nullable = false)
+    private Double distance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -46,12 +46,15 @@ public class Route {
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserRoute> userRoutes;
 
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<RoutePositionSiteUser> routePositionSiteUsers;
+
     public Route() {}
 
     public Route(Integer routeId, String name, Double distance, Status status) {
         this.routeId = routeId;
         this.name = name;
-
+        this.distance = distance;
         this.status = status;
     }
 
@@ -71,6 +74,13 @@ public class Route {
         this.name = name;
     }
 
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
 
     public Status getStatus() {
         return status;
@@ -106,5 +116,13 @@ public class Route {
 
     public void setUserRoutes(List<UserRoute> userRoutes) {
         this.userRoutes = userRoutes;
+    }
+
+    public List<RoutePositionSiteUser> getRoutePositionSiteUsers() {
+        return routePositionSiteUsers;
+    }
+
+    public void setRoutePositionSiteUsers(List<RoutePositionSiteUser> routePositionSiteUsers) {
+        this.routePositionSiteUsers = routePositionSiteUsers;
     }
 }
