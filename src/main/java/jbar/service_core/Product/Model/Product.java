@@ -1,11 +1,12 @@
 package jbar.service_core.Product.Model;
 
+import jbar.service_core.Product_Category.Model.ProductCategory;
 import jakarta.persistence.*;
 import jbar.service_core.Company.Model.Company;
 import jbar.service_core.Sell_Detail.Model.SellDetail;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "product")
@@ -51,16 +52,10 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SellDetail> sellDetails;
 
-    public Product() {
-    }
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductCategory> productCategories;
 
-    public Product(Integer productId, String name, String description, Double price, Boolean status) {
-        this.productId = productId;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.status = status;
-    }
+    // Getters y Setters
 
     public Integer getProductId() {
         return productId;
@@ -136,5 +131,13 @@ public class Product {
 
     public void setSellDetails(List<SellDetail> sellDetails) {
         this.sellDetails = sellDetails;
+    }
+
+    public Set<ProductCategory> getProductCategories() {
+        return productCategories;
+    }
+
+    public void setProductCategories(Set<ProductCategory> productCategories) {
+        this.productCategories = productCategories;
     }
 }

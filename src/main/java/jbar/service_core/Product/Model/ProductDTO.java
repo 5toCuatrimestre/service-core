@@ -1,32 +1,48 @@
 package jbar.service_core.Product.Model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jbar.service_core.Category.Model.CategoryDTO;
 
-@Schema(description = "Product DTO")
+import java.util.List;
+
 public class ProductDTO {
+    private Integer productId; // Se agrega el ID para updates
 
-    @NotBlank(message = "Product name cannot be blank.")
+    @NotNull(message = "Error with product name")
     private String name;
 
-    @NotBlank(message = "Product description cannot be blank.")
+    @NotNull(message = "Error with product description")
     private String description;
 
-    @Positive(message = "Product price must be greater than zero.")
+    @NotNull(message = "Error with product price")
+    @Positive(message = "Price must be positive")
     private Double price;
 
-    private Boolean status;
+    private Boolean status = true;
 
+    private List<CategoryDTO> categories; // Lista de IDs de categorías
+    private List<Integer> categoryIds;
     public ProductDTO() {
     }
 
-    public ProductDTO(String name, String description, Double price, Boolean status) {
+    public ProductDTO(Integer productId, String name, String description, Double price, Boolean status, List<Integer> categoryIds) {
+        this.productId = productId;
         this.name = name;
         this.description = description;
         this.price = price;
         this.status = status;
+        this.categoryIds = categoryIds;
+    }
+
+    // Getters y Setters
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public String getName() {
@@ -59,5 +75,21 @@ public class ProductDTO {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public List<CategoryDTO> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<CategoryDTO> categories) {
+        this.categories = categories;
+    }
+
+    public List<Integer> getCategoryIds() {
+        return categoryIds;
+    }
+
+    public void setCategoryIds(List<Integer> categoryIds) {
+        this.categoryIds = categoryIds;
     }
 }
