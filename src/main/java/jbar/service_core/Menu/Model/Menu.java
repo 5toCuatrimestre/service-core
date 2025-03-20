@@ -38,22 +38,19 @@ public class Menu {
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MenuProduct> menuProducts;
 
-    public Menu() {
-    }
+    // Constructor vacío
+    public Menu() {}
 
-    public Menu(Integer menuId, String name, String description, Boolean status) {
-        this.menuId = menuId;
+    // Constructor con parámetros
+    public Menu(String name, String description, Boolean status) {
         this.name = name;
         this.description = description;
         this.status = status;
     }
 
+    // Getters y Setters
     public Integer getMenuId() {
         return menuId;
-    }
-
-    public void setMenuId(Integer menuId) {
-        this.menuId = menuId;
     }
 
     public String getName() {
@@ -87,10 +84,10 @@ public class Menu {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
 
     public LocalDateTime getDeletedAt() {
         return deletedAt;
@@ -98,13 +95,5 @@ public class Menu {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public List<MenuProduct> getMenuProducts() {
-        return menuProducts;
-    }
-
-    public void setMenuProducts(List<MenuProduct> menuProducts) {
-        this.menuProducts = menuProducts;
     }
 }
