@@ -1,5 +1,10 @@
 package jbar.service_core.Product.Controller;
 
+import com.fasterxml.jackson.core.io.JsonEOFException;
+import jbar.service_core.Category.Model.CategoryDTO;
+import jbar.service_core.Multimedia.Model.Multimedia;
+import jbar.service_core.Multimedia.Model.MultimediaDTO;
+import jbar.service_core.Multimedia.Model.MultimediaRepository;
 import jbar.service_core.Product.Model.Product;
 import jbar.service_core.Product.Model.ProductDTO;
 import jbar.service_core.Product.Model.ProductRepository;
@@ -7,6 +12,8 @@ import jbar.service_core.Category.Model.Category;
 import jbar.service_core.Category.Model.CategoryRepository;
 import jbar.service_core.Product_Category.Model.ProductCategory;
 import jbar.service_core.Product_Category.Model.ProductCategoryRepository;
+import jbar.service_core.Product_Multimedia.ProductMultimediaRepository;
+import jbar.service_core.Product_Multimedia.ProductMultimedia;
 import jbar.service_core.Util.Response.Message;
 import jbar.service_core.Util.Enum.TypesResponse;
 import org.slf4j.Logger;
@@ -17,9 +24,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,76 +40,227 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final CategoryRepository categoryRepository;
+    private final MultimediaRepository multimediaRepository;
+    private final ProductMultimediaRepository productMultimediaRepository;
 
     @Autowired
     public ProductService(ProductRepository productRepository,
-                          ProductCategoryRepository productCategoryRepository,
-                          CategoryRepository categoryRepository) {
+            ProductCategoryRepository productCategoryRepository,
+            CategoryRepository categoryRepository, MultimediaRepository multimediaRepository, ProductMultimediaRepository productMultimediaRepository) {
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.categoryRepository = categoryRepository;
+        this.multimediaRepository = multimediaRepository;
+        this.productMultimediaRepository = productMultimediaRepository;
     }
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findAll() {
-        // Obtener todos los productos
         List<Product> products = productRepository.findAll();
+        List<ProductDTO> productDTOs = new ArrayList<>();
 
-        // Para cada producto, cargar las categorías asociadas
-        products.forEach(product -> {
-            // Las categorías se cargan automáticamente gracias a la relación en el modelo
-            log.info("Product: {}, Categories: {}", product.getName(), product.getProductCategories());
-        });
+        for (Product product : products) {
+            ProductDTO dto = new ProductDTO();
+            dto.setProductId(product.getProductId());
+            dto.setName(product.getName());
+            dto.setDescription(product.getDescription());
+            dto.setPrice(product.getPrice());
+            dto.setStatus(product.getStatus());
+
+            // Mapear categorías asociadas
+            List<ProductCategory> productCategories = productCategoryRepository.findByProduct_ProductId(product.getProductId());
+            List<CategoryDTO> categoryDTOs = productCategories.stream().map(pc -> {
+                Category category = pc.getCategory();
+                CategoryDTO catDto = new CategoryDTO();
+                catDto.setCategoryId(category.getCategoryId());
+                catDto.setName(category.getName());
+                catDto.setStatus(category.getStatus());
+                catDto.setCreatedAt(category.getCreatedAt());
+                catDto.setUpdatedAt(category.getUpdatedAt());
+                catDto.setDeletedAt(category.getDeletedAt());
+                return catDto;
+            }).collect(Collectors.toList());
+            dto.setProductCategories(categoryDTOs);
+
+            // Mapear multimedia asociada
+            List<ProductMultimedia> productMultimedia = productMultimediaRepository.findByProduct_ProductId(product.getProductId());
+            List<MultimediaDTO> multimediaDTOs = productMultimedia.stream().map(pm -> {
+                Multimedia media = pm.getMultimedia();
+                MultimediaDTO mDto = new MultimediaDTO();
+                mDto.setId(media.getMultimediaId());
+                mDto.setUrl(media.getUrl());
+                return mDto;
+            }).collect(Collectors.toList());
+            dto.setMultimedia(multimediaDTOs);
+
+            productDTOs.add(dto);
+        }
 
         log.info("All products retrieved successfully");
-        return new ResponseEntity<>(new Message(products, "Products retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+        return new ResponseEntity<>(new Message(productDTOs, "Products retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findById(Integer id) {
-        Optional<Product> product = productRepository.findById(id);
-        return product.map(value -> {
+        Optional<Product> productOpt = productRepository.findById(id);
+        return productOpt.map(product -> {
+            ProductDTO dto = new ProductDTO();
+            dto.setProductId(product.getProductId());
+            dto.setName(product.getName());
+            dto.setDescription(product.getDescription());
+            dto.setPrice(product.getPrice());
+            dto.setStatus(product.getStatus());
+
+            // Mapear las categorías asociadas
+            List<ProductCategory> productCategories = productCategoryRepository.findByProduct_ProductId(product.getProductId());
+            List<CategoryDTO> categoryDTOs = productCategories.stream().map(pc -> {
+                Category category = pc.getCategory();
+                CategoryDTO catDto = new CategoryDTO();
+                catDto.setCategoryId(category.getCategoryId());
+                catDto.setName(category.getName());
+                catDto.setStatus(category.getStatus());
+                catDto.setCreatedAt(category.getCreatedAt());
+                catDto.setUpdatedAt(category.getUpdatedAt());
+                catDto.setDeletedAt(category.getDeletedAt());
+                return catDto;
+            }).collect(Collectors.toList());
+            dto.setProductCategories(categoryDTOs);
+
+            // Mapear la multimedia asociada
+            List<ProductMultimedia> productMultimedia = productMultimediaRepository.findByProduct_ProductId(product.getProductId());
+            List<MultimediaDTO> multimediaDTOs = productMultimedia.stream().map(pm -> {
+                Multimedia media = pm.getMultimedia();
+                MultimediaDTO mDto = new MultimediaDTO();
+                mDto.setId(media.getMultimediaId());
+                mDto.setUrl(media.getUrl());
+                return mDto;
+            }).collect(Collectors.toList());
+            dto.setMultimedia(multimediaDTOs);
+
             log.info("Product with id {} retrieved successfully", id);
-            return new ResponseEntity<>(new Message(value, "Product found", TypesResponse.SUCCESS), HttpStatus.OK);
+            return new ResponseEntity<>(new Message(dto, "Product found", TypesResponse.SUCCESS), HttpStatus.OK);
         }).orElseGet(() -> {
             log.warn("Product with id {} not found", id);
             return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
         });
     }
 
-    @Transactional(rollbackFor = Exception.class)
+
+    @Transactional(rollbackFor = { SQLException.class, JsonEOFException.class })
     public ResponseEntity<Message> create(ProductDTO productDTO) {
-        // Crear el producto
+        // 1. Crear el producto
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
         product.setStatus(productDTO.getStatus() != null ? productDTO.getStatus() : true);
 
-        // Guardar el producto
+        // 2. Guardar el producto
         product = productRepository.saveAndFlush(product);
         final Product finalProduct = product;
 
-        // Asociar categorías si se proporcionan
-        if (productDTO.getCategoryIds() != null && !productDTO.getCategoryIds().isEmpty()) {
-            List<ProductCategory> productCategories = productDTO.getCategoryIds().stream()
-                    .map(categoryId -> {
+        // 3. Asociar categorías si se proporcionan
+        if (productDTO.getProductCategories() != null && !productDTO.getProductCategories().isEmpty()) {
+            List<ProductCategory> productCategories = productDTO.getProductCategories().stream()
+                    .map(category -> {
                         // Buscar la categoría por su ID
-                        Category category = categoryRepository.findById(categoryId)
-                                .orElseThrow(() -> new RuntimeException("Category not found with ID: " + categoryId));
+                        Category categoryEntity = categoryRepository.findById(category.getCategoryId())
+                                .orElseThrow(() -> new RuntimeException(
+                                        "Category not found with ID: " + category.getCategoryId()));
 
                         // Crear la relación ProductCategory
-                        return new ProductCategory(finalProduct, category);
+                        return new ProductCategory(finalProduct, categoryEntity);
                     })
                     .collect(Collectors.toList());
 
-            // Guardar las relaciones
+            // Guardar las relaciones en la tabla intermedia
             productCategoryRepository.saveAll(productCategories);
         }
 
-        log.info("Product created successfully: {}", product);
+        // 4. Asociar multimedia si se proporcionan
+        if (productDTO.getMultimedia() != null && !productDTO.getMultimedia().isEmpty()) {
+            // Validar que los IDs de multimedia existan
+            for (MultimediaDTO multimediaDTO : productDTO.getMultimedia()) {
+                if (multimediaDTO.getId() == null) {
+                    return new ResponseEntity<>(
+                            new Message("El ID de la multimedia es obligatorio.", TypesResponse.ERROR),
+                            HttpStatus.BAD_REQUEST);
+                }
+                if (!multimediaRepository.existsById(multimediaDTO.getId())) {
+                    return new ResponseEntity<>(
+                            new Message("No se encontró la multimedia con ID " + multimediaDTO.getId(),
+                                    TypesResponse.ERROR),
+                            HttpStatus.NOT_FOUND);
+                }
+            }
+
+            // Crear las relaciones ProductMultimedia
+            List<ProductMultimedia> productMultimediaList = productDTO.getMultimedia().stream()
+                    .map(multimediaDTO -> {
+                        Multimedia multimediaEntity = multimediaRepository.findById(multimediaDTO.getId())
+                                .orElseThrow(() -> new RuntimeException(
+                                        "Multimedia not found with ID: " + multimediaDTO.getId()));
+
+                        return new ProductMultimedia(
+                                finalProduct,
+                                multimediaEntity);
+                    })
+                    .collect(Collectors.toList());
+
+            // Guardar las relaciones ProductMultimedia
+            productMultimediaRepository.saveAllAndFlush(productMultimediaList);
+        }
+
+        log.info("Producto registrado con éxito");
+
+        // 6. Obtener las categorías asociadas
+        List<ProductCategory> productCategories = productCategoryRepository
+                .findByProduct_ProductId(finalProduct.getProductId());
+
+        List<Category> categories = productCategories.stream()
+                .map(ProductCategory::getCategory)
+                .collect(Collectors.toList());
+
+        // Log para mostrar el producto y las categorías asociadas
+        log.info("Producto creado exitosamente: {}", finalProduct);
+
+        // Convertir las categorías a un formato más legible (solo id y nombre)
+        List<CategoryDTO> categoryNames = categories.stream()
+                .map(category -> {
+                    CategoryDTO newCategory = new CategoryDTO();
+                    newCategory.setCategoryId(category.getCategoryId());
+                    newCategory.setName(category.getName());
+                    return newCategory;
+                })
+                .collect(Collectors.toList());
+
+        log.info("Categorías asociadas al producto: {}", categoryNames);
+
+        // 7. Obtener la multimedia asociada
+        List<ProductMultimedia> productMultimedia = productMultimediaRepository
+                .findByProduct_ProductId(finalProduct.getProductId());
+
+        List<Multimedia> multimedia = productMultimedia.stream()
+                .map(ProductMultimedia::getMultimedia)
+                .collect(Collectors.toList());
+        // Convertir la multimedia a un formato más legible (solo id y url)
+        List<MultimediaDTO> multimediaList = multimedia.stream()
+                .map(media -> {
+                    MultimediaDTO newMedia = new MultimediaDTO();
+                    newMedia.setId(media.getMultimediaId());
+                    newMedia.setUrl(media.getUrl());
+                    return newMedia;
+                })
+                .collect(Collectors.toList());
+        log.info("Multimedia asociada al producto: {}", multimediaList);
+// Asignar el id del producto creado al DTO
+        productDTO.setProductId(finalProduct.getProductId());
+// Retornar el producto junto con las categorías y multimedia asociadas
+        productDTO.setMultimedia(multimediaList);
+        productDTO.setProductCategories(categoryNames);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Message(product, "Product created", TypesResponse.SUCCESS));
+                .body(new Message(productDTO, "Producto creado con categorías", TypesResponse.SUCCESS));
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -132,7 +293,8 @@ public class ProductService {
             return new ResponseEntity<>(new Message(null, "Product deleted", TypesResponse.SUCCESS), HttpStatus.OK);
         } else {
             log.warn("Product with id {} not found for deletion", id);
-            return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR),
+                    HttpStatus.NOT_FOUND);
         }
     }
 }

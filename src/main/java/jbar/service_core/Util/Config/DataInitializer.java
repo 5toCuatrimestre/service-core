@@ -6,6 +6,8 @@ import jbar.service_core.Style.Model.Style;
 import jbar.service_core.Style.Model.StyleRepository;
 import jbar.service_core.Position.Model.Position;
 import jbar.service_core.Position.Model.PositionRepository;
+import jbar.service_core.Category.Model.Category;
+import jbar.service_core.Category.Model.CategoryRepository;
 import jbar.service_core.Company.Model.Company;
 import jbar.service_core.Company.Model.CompanyRepository;
 import jbar.service_core.Route.Model.Route;
@@ -34,6 +36,7 @@ public class DataInitializer {
             CompanyRepository companyRepository,
             RouteRepository routeRepository,
             SiteRepository siteRepository,
+            CategoryRepository categoryRepository,
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
@@ -54,9 +57,13 @@ public class DataInitializer {
             initializeRoutes(routeRepository);
 
             // Inicialización de Sites
-            // Inicialización de Sites
             initializeSites(siteRepository, companyRepository); // Pasamos el companyRepository aquí
+
+            // Inicialización de Categories
+            initializeCategories(categoryRepository);
+
             System.out.println("Data Initialization complete.");
+
         };
     }
 
@@ -150,6 +157,28 @@ public class DataInitializer {
             site.setCreatedAt(LocalDateTime.now());
             site.setCompany(company); // Asociamos la compañía al sitio
             siteRepository.save(site);  // Finalmente guardamos el sitio
+        }
+    }
+    //Método para inicializar Categories
+    private void initializeCategories(CategoryRepository categoryRepository) {
+        if (categoryRepository.count() == 0) {
+            Category category = new Category();
+            category.setName("Desayuno");
+            category.setStatus(Status.ACTIVE);
+            category.setCreatedAt(LocalDateTime.now());
+            categoryRepository.save(category);
+            // Segunda categoría
+            Category category2 = new Category();
+            category2.setName("Comida");
+            category2.setStatus(Status.ACTIVE);
+            category2.setCreatedAt(LocalDateTime.now());
+            categoryRepository.save(category2);
+            // Tercera categoría
+            Category category3 = new Category();
+            category3.setName("Cena");
+            category3.setStatus(Status.ACTIVE);
+            category3.setCreatedAt(LocalDateTime.now());
+            categoryRepository.save(category3);
         }
     }
 }

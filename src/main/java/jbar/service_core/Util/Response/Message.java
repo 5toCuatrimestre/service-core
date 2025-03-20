@@ -6,6 +6,7 @@ public class Message {
     private String text;
     private TypesResponse type;
     private Object result;
+    private Object result2;
 
     public Message(String text, TypesResponse type) {
         this.text = text;
@@ -13,6 +14,12 @@ public class Message {
     }
 
     public Message(Object result, String text, TypesResponse type) {
+        this.result = result;
+        this.text = text;
+        this.type = type;
+    }
+
+    public Message(Object result, Object result2,  String text, TypesResponse type) {
         this.result = result;
         this.text = text;
         this.type = type;

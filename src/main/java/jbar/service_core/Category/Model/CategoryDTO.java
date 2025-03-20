@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import jbar.service_core.Util.Enum.Status;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Schema(description = "Category DTO")
 public class CategoryDTO {
@@ -11,6 +12,8 @@ public class CategoryDTO {
     public interface Create {}
     public interface Update {}
     public interface ChangeStatus {}
+
+    private Integer categoryId;
 
     @Schema(description = "Name of the category.", example = "Electronics")
     @NotBlank(groups = {Create.class, Update.class}, message = "Category name cannot be blank.")
@@ -23,24 +26,32 @@ public class CategoryDTO {
 
     @Schema(description = "Timestamp when the category was created.", example = "2024-02-11")
     @NotNull(groups = {Create.class})
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Schema(description = "Timestamp when the category was last updated.", example = "2024-02-11")
     @NotNull(groups = {Update.class})
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Schema(description = "Timestamp when the category was deleted (if applicable).", example = "2024-02-11")
-    private Date deletedAt;
+    private LocalDateTime deletedAt;
 
     public CategoryDTO() {
     }
 
-    public CategoryDTO(String name, Status status, Date createdAt, Date updatedAt, Date deletedAt) {
+    public CategoryDTO(String name, Status status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
         this.name = name;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
     }
 
     public @NotBlank(groups = {Create.class, Update.class}, message = "Category name cannot be blank.") @Size(min = 2, max = 100, message = "Category name must be between 2 and 100 characters.") String getName() {
@@ -59,27 +70,27 @@ public class CategoryDTO {
         this.status = status;
     }
 
-    public @NotNull(groups = {Create.class}) Date getCreatedAt() {
+    public @NotNull(groups = {Create.class}) LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(@NotNull(groups = {Create.class}) Date createdAt) {
+    public void setCreatedAt(@NotNull(groups = {Create.class}) LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public @NotNull(groups = {Update.class}) Date getUpdatedAt() {
+    public @NotNull(groups = {Update.class}) LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(@NotNull(groups = {Update.class}) Date updatedAt) {
+    public void setUpdatedAt(@NotNull(groups = {Update.class}) LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Date getDeletedAt() {
+    public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(Date deletedAt) {
+    public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 }
