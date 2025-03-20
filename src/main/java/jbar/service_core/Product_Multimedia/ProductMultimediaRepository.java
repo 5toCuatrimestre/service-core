@@ -6,4 +6,5 @@ import java.util.List;
 public interface ProductMultimediaRepository extends JpaRepository<ProductMultimedia, Integer> {
 
     List<ProductMultimedia> findByProduct_ProductId(Integer productId);
+    List<ProductMultimedia> deleteByProduct_ProductId(Integer productId);
 }

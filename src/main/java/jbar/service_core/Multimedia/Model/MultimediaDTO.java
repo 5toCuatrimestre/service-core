@@ -24,7 +24,7 @@ public class MultimediaDTO {
 
     @Schema(description = "URL of the image.", example = "https://example.com/image.jpg")
     @NotBlank(groups = {Create.class, Update.class}, message = "La URL de la imagen no puede estar vacía.")
-    @Size(groups = {Create.class, Update.class}, max = 255, message = "La URL de la imagen no puede tener más de 255 caracteres.")
+    @Size(groups = {Create.class, Update.class}, max = 1000, message = "La URL de la imagen no puede tener más de 255 caracteres.")
     private String url;
 
     public Integer getId() {
