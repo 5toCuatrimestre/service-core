@@ -45,12 +45,12 @@ public class ProductCategory {
     public ProductCategory(Product product, Category category) {
         this.product = product;
         this.category = category;
+        this.status = true; // Default status
         this.createdAt = LocalDateTime.now();
-        this.status = true;
     }
 
-    // Getters y Setters
 
+    // Getters y Setters
     public Integer getProductCategoryId() {
         return productCategoryId;
     }

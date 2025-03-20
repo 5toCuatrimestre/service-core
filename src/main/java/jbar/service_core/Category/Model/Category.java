@@ -4,7 +4,6 @@ import jbar.service_core.Product_Category.Model.ProductCategory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jbar.service_core.Util.Enum.Status;
 import jakarta.persistence.*;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -15,7 +14,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer categoryId;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -37,8 +36,25 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProductCategory> productCategories;
 
-    // Getters y Setters
+    // 🔹 Constructor por defecto
+    public Category() {
+        this.createdAt = LocalDateTime.now();
+    }
 
+    // 🔹 Constructor con parámetros (Corrección para DataInitializer)
+    public Category(String name, Status status) {
+        this.name = name;
+        this.status = status;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // 🔹 Hook para actualizar automáticamente `updatedAt`
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 🔹 Getters y Setters
     public Integer getCategoryId() {
         return categoryId;
     }

@@ -1,5 +1,7 @@
 package jbar.service_core.Util.Config;
 
+import jbar.service_core.Product_Category.Model.ProductCategory;
+import jbar.service_core.Product_Category.Model.ProductCategoryRepository;
 import jbar.service_core.User.Model.User;
 import jbar.service_core.User.Model.UserRepository;
 import jbar.service_core.Style.Model.Style;
@@ -14,6 +16,10 @@ import jbar.service_core.Route.Model.Route;
 import jbar.service_core.Route.Model.RouteRepository;
 import jbar.service_core.Site.Model.Site;
 import jbar.service_core.Site.Model.SiteRepository;
+import jbar.service_core.Multimedia.Model.Multimedia;
+import jbar.service_core.Multimedia.Model.MultimediaRepository;
+import jbar.service_core.Product.Model.Product;
+import jbar.service_core.Product.Model.ProductRepository;
 import jbar.service_core.Util.Enum.Rol;
 import jbar.service_core.Util.Enum.Status;
 import org.springframework.boot.CommandLineRunner;
@@ -37,36 +43,25 @@ public class DataInitializer {
             RouteRepository routeRepository,
             SiteRepository siteRepository,
             CategoryRepository categoryRepository,
+            MultimediaRepository multimediaRepository,
+            ProductRepository productRepository,
+            ProductCategoryRepository productCategoryRepository, // 🔹 Agregado
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
-
-            // Inicialización de usuarios
             initializeUsers(userRepository, passwordEncoder);
-
-            // Inicialización de Styles
             initializeStyles(styleRepository);
-
-            // Inicialización de Positions
             initializePositions(positionRepository);
-
-            // Inicialización de Companies
             initializeCompanies(companyRepository);
-
-            // Inicialización de Routes
             initializeRoutes(routeRepository);
-
-            // Inicialización de Sites
-            initializeSites(siteRepository, companyRepository); // Pasamos el companyRepository aquí
-
-            // Inicialización de Categories
+            initializeSites(siteRepository, companyRepository);
             initializeCategories(categoryRepository);
+            initializeMultimedia(multimediaRepository);
+            initializeProducts(productRepository, categoryRepository, productCategoryRepository);
 
             System.out.println("Data Initialization complete.");
-
         };
     }
-
     // Método para inicializar usuarios
     private void initializeUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         User[] users = new User[] {
@@ -91,8 +86,6 @@ public class DataInitializer {
             }
         }
     }
-
-
 
     // Método para inicializar Styles
     private void initializeStyles(StyleRepository styleRepository) {
@@ -136,7 +129,7 @@ public class DataInitializer {
         if (routeRepository.count() == 0) {
             Route route = new Route();
             route.setName("Main Route");
-            route.setStatus(Status.ACTIVE);  // Usamos el enum Status
+            route.setStatus(Status.ACTIVE);
             routeRepository.save(route);
         }
     }
@@ -144,41 +137,79 @@ public class DataInitializer {
     // Método para inicializar Sites
     private void initializeSites(SiteRepository siteRepository, CompanyRepository companyRepository) {
         if (siteRepository.count() == 0) {
-            Company company = new Company(); // Aseguramos que el company esté asociado
+            Company company = new Company();
             company.setName("Test Company");
             company.setStatus(true);
             company.setCreatedAt(LocalDateTime.now());
-            companyRepository.save(company);  // Guardamos la compañía primero
+            companyRepository.save(company);
 
             Site site = new Site();
             site.setName("Main Site");
             site.setLocation("Somewhere");
             site.setStatus(true);
             site.setCreatedAt(LocalDateTime.now());
-            site.setCompany(company); // Asociamos la compañía al sitio
-            siteRepository.save(site);  // Finalmente guardamos el sitio
+            site.setCompany(company);
+            siteRepository.save(site);
         }
     }
-    //Método para inicializar Categories
+// Métodos de inicialización
+
+
     private void initializeCategories(CategoryRepository categoryRepository) {
         if (categoryRepository.count() == 0) {
-            Category category = new Category();
-            category.setName("Desayuno");
-            category.setStatus(Status.ACTIVE);
-            category.setCreatedAt(LocalDateTime.now());
-            categoryRepository.save(category);
-            // Segunda categoría
-            Category category2 = new Category();
-            category2.setName("Comida");
-            category2.setStatus(Status.ACTIVE);
-            category2.setCreatedAt(LocalDateTime.now());
-            categoryRepository.save(category2);
-            // Tercera categoría
-            Category category3 = new Category();
-            category3.setName("Cena");
-            category3.setStatus(Status.ACTIVE);
-            category3.setCreatedAt(LocalDateTime.now());
-            categoryRepository.save(category3);
+            Category desayuno = new Category("Desayuno", Status.ACTIVE);
+            categoryRepository.save(desayuno);
+
+            Category comida = new Category("Comida", Status.ACTIVE);
+            categoryRepository.save(comida);
+
+            Category cena = new Category("Cena", Status.ACTIVE);
+            categoryRepository.save(cena);
+        }
+    }
+
+    private void initializeMultimedia(MultimediaRepository multimediaRepository) {
+        if (multimediaRepository.count() == 0) {
+            Multimedia multimedia = new Multimedia();
+            multimedia.setUrl("https://d1csarkz8obe9u.cloudfront.net/posterpreviews/restaurant-logo-design-template-b281aeadaa832c28badd72c1f6c5caad_screen.jpg?ts=1595421543");
+            multimediaRepository.save(multimedia);
+        }
+    }
+
+    private void initializeProducts(ProductRepository productRepository,
+                                    CategoryRepository categoryRepository,
+                                    ProductCategoryRepository productCategoryRepository) {
+        if (productRepository.count() == 0) {
+            Optional<Category> desayuno = categoryRepository.findByNameIgnoreCase("Desayuno");
+            Optional<Category> comida = categoryRepository.findByNameIgnoreCase("Comida");
+            Optional<Category> cena = categoryRepository.findByNameIgnoreCase("Cena");
+
+            desayuno.ifPresent(category -> {
+                Product huevos = new Product("Huevos Rancheros", "Huevos fritos con salsa de jitomate y tortillas.", 80.0);
+                productRepository.save(huevos);
+
+                // Relación con categoría
+                ProductCategory productCategory = new ProductCategory(huevos, category);
+                productCategoryRepository.save(productCategory);
+            });
+
+            comida.ifPresent(category -> {
+                Product carne = new Product("Carne Asada", "Corte de res a la parrilla con guarniciones.", 200.0);
+                productRepository.save(carne);
+
+                // Relación con categoría
+                ProductCategory productCategory = new ProductCategory(carne, category);
+                productCategoryRepository.save(productCategory);
+            });
+
+            cena.ifPresent(category -> {
+                Product ensalada = new Product("Ensalada César", "Lechuga, aderezo césar, crutones y queso parmesano.", 120.0);
+                productRepository.save(ensalada);
+
+                // Relación con categoría
+                ProductCategory productCategory = new ProductCategory(ensalada, category);
+                productCategoryRepository.save(productCategory);
+            });
         }
     }
 }
