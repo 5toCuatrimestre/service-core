@@ -1,8 +1,11 @@
 package jbar.service_core.Product.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jbar.service_core.Multimedia.Model.Multimedia;
 import jbar.service_core.Product_Category.Model.ProductCategory;
 import jakarta.persistence.*;
 import jbar.service_core.Company.Model.Company;
+import jbar.service_core.Product_Multimedia.ProductMultimedia;
 import jbar.service_core.Sell_Detail.Model.SellDetail;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,8 +55,12 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SellDetail> sellDetails;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductCategory> productCategories;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductCategory> productCategories;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductMultimedia> multimedias;
 
     // Getters y Setters
 
@@ -133,11 +140,11 @@ public class Product {
         this.sellDetails = sellDetails;
     }
 
-    public Set<ProductCategory> getProductCategories() {
+    public List<ProductCategory> getProductCategories() {
         return productCategories;
     }
 
-    public void setProductCategories(Set<ProductCategory> productCategories) {
+    public void setProductCategories(List<ProductCategory> productCategories) {
         this.productCategories = productCategories;
     }
 }

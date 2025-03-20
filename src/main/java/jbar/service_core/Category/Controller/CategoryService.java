@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +71,7 @@ public class CategoryService {
             Category category = existingCategoryOptional.get();
             category.setName(categoryDTO.getName());
             category.setStatus(categoryDTO.getStatus());
-            category.setUpdatedAt(Date.valueOf(LocalDate.now()));
+            category.setUpdatedAt(LocalDateTime.now());
 
             categoryRepository.saveAndFlush(category); // Guarda y refresca en la BD
 
@@ -90,7 +90,7 @@ public class CategoryService {
             Category existingCategory = category.get();
             if (existingCategory.getStatus() == Status.ACTIVE) {
                 existingCategory.setStatus(Status.INACTIVE);
-                existingCategory.setDeletedAt(Date.valueOf(LocalDate.now()));
+                existingCategory.setDeletedAt(LocalDateTime.now());
             } else {
                 existingCategory.setStatus(Status.ACTIVE);
                 existingCategory.setDeletedAt(null);

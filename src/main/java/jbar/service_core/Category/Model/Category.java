@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jbar.service_core.Util.Enum.Status;
 import jakarta.persistence.*;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -21,20 +22,19 @@ public class Category {
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
-    @Column(name = "created_at")
-    private Date createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @JsonIgnore
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @JsonIgnore
     @Column(name = "deleted_at")
-    private Date deletedAt;
+    private LocalDateTime deletedAt;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProductCategory> productCategories;
 
     // Getters y Setters
@@ -63,27 +63,27 @@ public class Category {
         this.status = status;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Date getDeletedAt() {
+    public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(Date deletedAt) {
+    public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 
