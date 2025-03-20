@@ -83,6 +83,21 @@ public class CompanyService {
         return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
+    // 🔹 Nuevo método para guardar solo la URL de la imagen
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<Message> updateCompanyImage(Integer id, String imageUrl) {
+        Optional<Company> existingCompanyOptional = companyRepository.findById(id);
+        if (existingCompanyOptional.isPresent()) {
+            Company company = existingCompanyOptional.get();
+            company.setUrl(imageUrl); // Se actualiza solo la URL de la imagen
+            company.setUpdatedAt(LocalDateTime.now());
+
+            companyRepository.saveAndFlush(company);
+            return ResponseEntity.ok(new Message(company, "Company image updated", TypesResponse.SUCCESS));
+        }
+        return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> delete(Integer id) {
         Optional<Company> companyOptional = companyRepository.findById(id);
