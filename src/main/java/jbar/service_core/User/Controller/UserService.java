@@ -65,9 +65,9 @@ public class UserService {
     public ResponseEntity<Message> create(UserDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
-        user.setLastName(userDTO.getLastName());
+        user.setLastName("idk");
         user.setEmail(userDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setPassword(passwordEncoder.encode(userDTO.getEmail()));
         user.setRol(userDTO.getRol());
         user.setStatus(Status.ACTIVE);
         user.setPhoneNumber(userDTO.getPhoneNumber());
@@ -90,9 +90,7 @@ public class UserService {
             User user = existingUserOptional.get();
             // Asignamos todos los valores desde el DTO al usuario existente
             user.setName(userDTO.getName());
-            user.setLastName(userDTO.getLastName());
             user.setEmail(userDTO.getEmail());
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             user.setStatus(userDTO.getStatus());
             user.setRol(userDTO.getRol());
             user.setPhoneNumber(userDTO.getPhoneNumber());

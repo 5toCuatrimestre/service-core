@@ -18,6 +18,9 @@ public class Company {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
+    @Column(name = "url", columnDefinition = "TEXT")
+    private String url;
+
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
@@ -106,5 +109,13 @@ public class Company {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

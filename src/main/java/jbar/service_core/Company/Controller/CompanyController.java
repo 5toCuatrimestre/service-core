@@ -48,8 +48,14 @@ public class CompanyController {
      * 🔹 Actualizar información de la empresa
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Message> updateCompany(@PathVariable Integer id, @RequestBody @Validated(CompanyDTO.Update.class) CompanyDTO companyDTO) {
+    public ResponseEntity<Message> updateCompany(@PathVariable Integer id, @RequestBody CompanyDTO companyDTO) {
         return companyService.update(id, companyDTO);
+    }
+
+    // 🔹 Nuevo endpoint para actualizar solo la imagen de la empresa
+    @PutMapping("/{id}/image")
+    public ResponseEntity<Message> updateCompanyImage(@PathVariable Integer id, @RequestParam("imageUrl") String imageUrl) {
+        return companyService.updateCompanyImage(id, imageUrl);
     }
 
     /**

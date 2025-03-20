@@ -9,6 +9,10 @@ public class CompanyDTO {
 
     public interface Create {}
     public interface Update {}
+    public interface UploadProfile {}
+
+
+    private Integer companyId;
 
     @Schema(description = "Company name", example = "Tech Solutions Inc.")
     @NotBlank(groups = {Create.class, Update.class}, message = "Company name cannot be blank.")
@@ -19,6 +23,11 @@ public class CompanyDTO {
     @NotBlank(groups = {Create.class, Update.class}, message = "Company address cannot be blank.")
     @Size(max = 255, message = "Company address must not exceed 255 characters.")
     private String address;
+
+    @Schema(description = "Url", example = "aaa")
+    @NotBlank(groups = {Create.class, UploadProfile.class}, message = "url not blank")
+    private String url;
+
 
     public CompanyDTO() {}
 
