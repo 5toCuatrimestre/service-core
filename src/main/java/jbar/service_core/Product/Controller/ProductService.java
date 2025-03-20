@@ -268,12 +268,57 @@ public class ProductService {
         Optional<Product> existingProduct = productRepository.findById(id);
         if (existingProduct.isPresent()) {
             Product product = existingProduct.get();
+
+            // 1. Actualizar la información básica del producto
             product.setName(productDTO.getName());
             product.setDescription(productDTO.getDescription());
             product.setPrice(productDTO.getPrice());
             product.setStatus(productDTO.getStatus());
             product.setUpdatedAt(LocalDateTime.now());
 
+            // 2. Borrar relaciones previas de categorías
+            if (productDTO.getProductCategories() != null) {
+                productCategoryRepository.deleteByProduct_ProductId(id);  // Borra las categorías actuales relacionadas
+            }
+
+            // 3. Agregar nuevas categorías si se proporcionan
+            if (productDTO.getProductCategories() != null && !productDTO.getProductCategories().isEmpty()) {
+                List<ProductCategory> productCategories = productDTO.getProductCategories().stream()
+                        .map(category -> {
+                            // Buscar la categoría por su ID
+                            Category categoryEntity = categoryRepository.findById(category.getCategoryId())
+                                    .orElseThrow(() -> new RuntimeException("Category not found with ID: " + category.getCategoryId()));
+
+                            // Crear la relación ProductCategory
+                            return new ProductCategory(product, categoryEntity);
+                        })
+                        .collect(Collectors.toList());
+
+                // Guardar las relaciones en la tabla intermedia
+                productCategoryRepository.saveAll(productCategories);
+            }
+
+            // 4. Borrar relaciones previas de multimedia
+            if (productDTO.getMultimedia() != null) {
+                productMultimediaRepository.deleteByProduct_ProductId(id);  // Borra las multimedia actuales relacionadas
+            }
+
+            // 5. Agregar nuevas multimedia si se proporcionan
+            if (productDTO.getMultimedia() != null && !productDTO.getMultimedia().isEmpty()) {
+                List<ProductMultimedia> productMultimediaList = productDTO.getMultimedia().stream()
+                        .map(multimediaDTO -> {
+                            Multimedia multimediaEntity = multimediaRepository.findById(multimediaDTO.getId())
+                                    .orElseThrow(() -> new RuntimeException("Multimedia not found with ID: " + multimediaDTO.getId()));
+
+                            return new ProductMultimedia(product, multimediaEntity);
+                        })
+                        .collect(Collectors.toList());
+
+                // Guardar las relaciones ProductMultimedia
+                productMultimediaRepository.saveAllAndFlush(productMultimediaList);
+            }
+
+            // Guardar el producto actualizado
             productRepository.saveAndFlush(product);
 
             log.info("Product with id {} updated successfully", id);
@@ -283,6 +328,7 @@ public class ProductService {
         log.warn("Product with id {} not found for update", id);
         return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
+
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> delete(Integer id) {

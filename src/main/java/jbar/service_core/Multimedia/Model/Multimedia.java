@@ -28,6 +28,9 @@ public class Multimedia {
         this.url = url;
     }
 
+    public Multimedia(String url) {
+    }
+
     public Integer getMultimediaId() {return multimediaId;}
 
     public void setMultimediaId(Integer multimediaId) { this.multimediaId=multimediaId;}
