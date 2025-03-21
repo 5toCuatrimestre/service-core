@@ -66,15 +66,14 @@ public class StyleService {
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(StyleDTO styleDTO) {
         Style style = new Style();
-
         style.setStatus(styleDTO.getStatus());
         style.setH1(styleDTO.getH1());
         style.setH2(styleDTO.getH2());
         style.setH3(styleDTO.getH3());
         style.setP(styleDTO.getP());
-        style.setBgCard(styleDTO.getBgCard() != null ? styleDTO.getBgCard() : "#FFFFFF"); // 🔹 Evitar null
-        style.setBgInterface(styleDTO.getByInterface());
-        style.setBgButton(styleDTO.getByButton());
+        style.setBgCard(styleDTO.getBgCard()); // 🔹 Evitar null
+        style.setBgInterface(styleDTO.getBgInterface());
+        style.setBgButton(styleDTO.getBgButton());
 
         styleRepository.save(style);
 
@@ -91,18 +90,40 @@ public class StyleService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, StyleDTO styleDTO) {
+        //sout para cada atrbuto de styleDTO
+        System.out.println(styleDTO.getStatus());
+        System.out.println(styleDTO.getH1());
+        System.out.println(styleDTO.getH2());
+        System.out.println(styleDTO.getH3());
+        System.out.println(styleDTO.getP());
+        System.out.println(styleDTO.getBgCard());
+        System.out.println(styleDTO.getBgInterface());
+        System.out.println(styleDTO.getBgButton());
+        System.out.println(styleDTO.getBgCard());
         return styleRepository.findById(id)
                 .map(style -> {
+                    // Primero, poner en false el estado de todos los estilos
+                    styleRepository.findAll().forEach(existingStyle -> {
+                        if (!existingStyle.getStyleId().equals(id)) {
+                            existingStyle.setStatus(false); // Actualizamos el estado a false
+                            styleRepository.save(existingStyle); // Guardamos los cambios
+                        }
+                    });
 
-                    Optional.ofNullable(styleDTO.getStatus()).ifPresent(style::setStatus);
-                    Optional.ofNullable(styleDTO.getH1()).ifPresent(style::setH1);
-                    Optional.ofNullable(styleDTO.getH2()).ifPresent(style::setH2);
-                    Optional.ofNullable(styleDTO.getH3()).ifPresent(style::setH3);
-                    Optional.ofNullable(styleDTO.getP()).ifPresent(style::setP);
-                    Optional.ofNullable(styleDTO.getByInterface()).ifPresent(style::setBgInterface);
-                    Optional.ofNullable(styleDTO.getByButton()).ifPresent(style::setBgButton);
+                    // Actualizamos los campos directamente desde el DTO
+                    style.setStatus(styleDTO.getStatus());
+                    style.setH1(styleDTO.getH1());
+                    style.setH2(styleDTO.getH2());
+                    style.setH3(styleDTO.getH3());
+                    style.setP(styleDTO.getP());
+                    style.setBgCard(styleDTO.getBgCard());
+                    style.setBgInterface(styleDTO.getBgInterface());
+                    style.setBgButton(styleDTO.getBgButton());
 
+                    // Actualizamos la fecha de actualización
                     style.setUpdatedAt(LocalDateTime.now());
+
+                    // Guardamos el estilo actualizado
                     styleRepository.save(style);
 
                     log.info("Style with id {} updated successfully", id);

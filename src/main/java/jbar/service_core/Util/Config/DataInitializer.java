@@ -33,7 +33,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Configuration
@@ -98,18 +100,58 @@ public class DataInitializer {
     // Método para inicializar Styles
     private void initializeStyles(StyleRepository styleRepository) {
         if (styleRepository.count() == 0) {
-            Style style = new Style();
-            style.setStatus(true);
-            style.setH1("#000000");
-            style.setH2("#222222");
-            style.setH3("#444444");
-            style.setP("#666666");
-            style.setBgCard("#FFFFFF");
-            style.setBgInterface("#EEEEEE");
-            style.setBgButton("#FF0000");
-            styleRepository.save(style);
+            // Lista de temas a guardar
+            List<Map<String, String>> themes = Arrays.asList(
+                    Map.of(
+                            "H1", "#ffffff",
+                            "H2", "#cccccc",
+                            "H3", "#aaaaaa",
+                            "P", "#000000",
+                            "BgCard", "#222222",
+                            "BgInterface", "#111111",
+                            "BgButton", "#c7c7c7"
+                    ),
+                    Map.of(
+                            "H1", "#000000",
+                            "H2", "#333333",
+                            "H3", "#000000",
+                            "P", "#ffffff",
+                            "BgCard", "#f0f0f0",
+                            "BgInterface", "#ffffff",
+                            "BgButton", "#000000"
+                    ),
+                    Map.of(
+                            "H1", "#ffffff",
+                            "H2", "#ffffff",
+                            "H3", "#ffffff",
+                            "P", "#000000",
+                            "BgCard", "#05004a",
+                            "BgInterface", "#1f24ab",
+                            "BgButton", "#ffffff"
+                    )
+            );
+
+            // Guardar cada tema como un nuevo objeto Style
+            for (int i = 0; i < themes.size(); i++) {
+                Map<String, String> theme = themes.get(i);
+                Style style = new Style();
+
+                // Establecer el estado (el primer tema será el activo)
+                style.setStatus(i == 0);  // El primer tema tiene status = true, los demás false
+
+                style.setH1(theme.get("H1"));
+                style.setH2(theme.get("H2"));
+                style.setH3(theme.get("H3"));
+                style.setP(theme.get("P"));
+                style.setBgCard(theme.get("BgCard"));
+                style.setBgInterface(theme.get("BgInterface"));
+                style.setBgButton(theme.get("BgButton"));
+
+                styleRepository.save(style);
+            }
         }
     }
+
 
     // Método para inicializar Positions
     private void initializePositions(PositionRepository positionRepository) {

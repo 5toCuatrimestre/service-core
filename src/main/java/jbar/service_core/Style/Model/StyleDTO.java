@@ -28,16 +28,16 @@ public class StyleDTO {
     private String bgCard;
 
     @Schema(description = "Background color for interface", example = "#EEEEEE")
-    private String byInterface;
+    private String bgInterface;
 
     @Schema(description = "Background color for buttons", example = "#FF0000")
-    private String byButton;
+    private String bgButton;
 
     public StyleDTO() {}
 
     public StyleDTO(Integer styleId, Boolean status,
                     String header, String h1, String h2, String h3, String p,String bgCard,
-                    String byInterface, String byButton) {
+                    String bgInterface, String bgButton) {
         this.styleId = styleId;
 
 
@@ -48,8 +48,8 @@ public class StyleDTO {
         this.H3 = h3;
         this.P = p;
         this.bgCard = bgCard; // 🔹 AGREGADO
-        this.byInterface = byInterface;
-        this.byButton = byButton;
+        this.bgInterface = bgInterface;
+        this.bgButton = bgButton;
     }
 
     public Integer getStyleId() {
@@ -108,26 +108,27 @@ public class StyleDTO {
         this.P = p;
     }
 
-    public String getByInterface() {
-        return byInterface;
+    public String getBgButton() {
+        return bgButton;
     }
 
-    public void setByInterface(String byInterface) {
-        this.byInterface = byInterface;
+    public void setBgButton(String bgButton) {
+        this.bgButton = bgButton;
     }
-    public String getBgCard() {  // 🔹 AGREGADO
+
+    public String getBgInterface() {
+        return bgInterface;
+    }
+
+    public void setBgInterface(String bgInterface) {
+        this.bgInterface = bgInterface;
+    }
+
+    public String getBgCard() {
         return bgCard;
     }
 
-    public void setBgCard(String bgCard) {  // 🔹 AGREGADO
+    public void setBgCard(String bgCard) {
         this.bgCard = bgCard;
-    }
-
-    public String getByButton() {
-        return byButton;
-    }
-
-    public void setByButton(String byButton) {
-        this.byButton = byButton;
     }
 }

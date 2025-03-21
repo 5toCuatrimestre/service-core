@@ -44,15 +44,15 @@ public class Style {
     @Column(name = "p", nullable = false)
     private String p;
 
-    @JsonProperty("BG_CARD")
+    @JsonProperty("BgCard")
     @Column(name = "bg_card", nullable = false)
     private String bgCard;
 
-    @JsonProperty("BG_INTERFACE")
+    @JsonProperty("BgInterface")
     @Column(name = "bg_interface", nullable = false)
     private String bgInterface;
 
-    @JsonProperty("BG_BUTTON")
+    @JsonProperty("BgButton")
     @Column(name = "bg_button", nullable = false)
     private String bgButton;
 
