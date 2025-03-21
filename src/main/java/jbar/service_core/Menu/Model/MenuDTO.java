@@ -2,7 +2,10 @@ package jbar.service_core.Menu.Model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import jbar.service_core.Product.Model.ProductDTO;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "Menu DTO")
 public class MenuDTO {
@@ -28,6 +31,9 @@ public class MenuDTO {
     @Schema(description = "Last updated timestamp.", example = "2025-03-17T10:00:00")
     private LocalDateTime updatedAt;
 
+    private List<ProductDTO> products;
+    private List<Integer> productIds;
+
     public MenuDTO() {}
 
     public MenuDTO(String name, String description, Boolean status, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -36,6 +42,22 @@ public class MenuDTO {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public List<Integer> getProductIds() {
+        return productIds;
+    }
+
+    public void setProductIds(List<Integer> productIds) {
+        this.productIds = productIds;
+    }
+
+    public List<ProductDTO> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ProductDTO> products) {
+        this.products = products;
     }
 
     public String getName() {
