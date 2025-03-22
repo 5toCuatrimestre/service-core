@@ -4,6 +4,7 @@ import jbar.service_core.Menu_Product.Model.MenuProduct;
 import jbar.service_core.Menu_Product.Model.MenuProductRepository;
 import jbar.service_core.Product_Category.Model.ProductCategory;
 import jbar.service_core.Product_Category.Model.ProductCategoryRepository;
+import jbar.service_core.Sell_Detail.Model.SellDetail;
 import jbar.service_core.User.Model.User;
 import jbar.service_core.User.Model.UserRepository;
 import jbar.service_core.Style.Model.Style;
@@ -24,6 +25,11 @@ import jbar.service_core.Product.Model.Product;
 import jbar.service_core.Product.Model.ProductRepository;
 import jbar.service_core.Menu.Model.Menu;
 import jbar.service_core.Menu.Model.MenuRepository;
+import jbar.service_core.Sell.Model.Sell;
+import jbar.service_core.Sell.Model.SellRepository;
+import jbar.service_core.Sell_Detail.Model.SellDetailRepository;
+import jbar.service_core.RatingUserSell.Model.RatingUserSell;
+import jbar.service_core.RatingUserSell.Model.RatingUserSellRepository;
 import jbar.service_core.Util.Enum.Rol;
 import jbar.service_core.Util.Enum.Status;
 import org.springframework.boot.CommandLineRunner;
@@ -32,14 +38,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Configuration
 public class DataInitializer {
+
+    private final RatingUserSellRepository ratingUserSellRepository;
+
+    public DataInitializer(RatingUserSellRepository ratingUserSellRepository) {
+        this.ratingUserSellRepository = ratingUserSellRepository;
+    }
 
     @Bean
     CommandLineRunner initDatabase(
@@ -55,7 +65,10 @@ public class DataInitializer {
             ProductCategoryRepository productCategoryRepository, // 🔹 Agregado
             PasswordEncoder passwordEncoder,
             MenuRepository menuRepository,
-            MenuProductRepository menuProductRepository
+            MenuProductRepository menuProductRepository,
+            SellRepository sellRepository,
+            SellDetailRepository sellDetailRepository,
+            RatingUserSellRepository ratingUserSellRepository
     ) {
         return args -> {
             initializeUsers(userRepository, passwordEncoder);
@@ -68,7 +81,7 @@ public class DataInitializer {
             initializeMultimedia(multimediaRepository);
             initializeProducts(productRepository, categoryRepository, productCategoryRepository);
             initializeMenu(menuRepository,productRepository,menuProductRepository);
-
+            initializeSellsWithDetailsAndRatings(sellRepository, userRepository, productRepository, sellDetailRepository, ratingUserSellRepository);
             System.out.println("Data Initialization complete.");
         };
     }
@@ -202,8 +215,6 @@ public class DataInitializer {
             siteRepository.save(site);
         }
     }
-// Métodos de inicialización
-
 
     private void initializeCategories(CategoryRepository categoryRepository) {
         if (categoryRepository.count() == 0) {
@@ -300,5 +311,108 @@ public class DataInitializer {
             }
         }
     }
+
+    private void initializeSellsWithDetailsAndRatings(SellRepository sellRepository,
+                                                      UserRepository userRepository,
+                                                      ProductRepository productRepository,  // Usamos ProductRepository para obtener los productos
+                                                      SellDetailRepository sellDetailRepository,
+                                                      RatingUserSellRepository ratingUserSellRepository) {
+        // Obtener productos disponibles
+        List<Product> products = productRepository.findAll();
+        if (products.isEmpty()) {
+            System.out.println("No products found in the system.");
+            return;
+        }
+        // Obtener usuarios con rol WAITER
+        List<User> waiters = userRepository.findByRol(Rol.WAITER);
+
+        if (waiters.size() < 3) {  // Verificar que haya al menos 5 meseros
+            System.out.println("Not enough waiters in the system. At least 3 are required.");
+            return;
+        }
+        // Crear una instancia de Random
+        Random random = new Random();
+        // Crear 5 ventas (1 venta por cada mesero)
+        for (int i = 0; i < 5; i++) {
+            User user = waiters.get(random.nextInt(waiters.size()));  // Usamos solo meseros  // Asegurarse de que no se exceda del tamaño de la lista  // Asignar usuarios de forma cíclica
+
+            // Crear una nueva venta
+            Sell sell = new Sell();
+            sell.setUser(user);
+            sell.setTotalPrice(generateTotalPrice());  // Generamos un precio aleatorio para la venta
+            sell.setSellDate(new Timestamp(System.currentTimeMillis()));  // Fecha y hora actuales
+            sell.setSellTime(new java.sql.Time(System.currentTimeMillis()));  // Hora actual
+            sell.setStatus(true);
+
+            // Guardar la venta
+            sellRepository.save(sell);
+
+            // Crear los detalles de la venta, asociando productos con IDs 1, 2 y 3
+            createSellDetails(sell, products, sellDetailRepository);
+
+            // Crear la calificación de la venta (solo si el usuario es un mesero, por ejemplo)
+            if (user.getRol() == Rol.WAITER) {
+                createRatingForSell(sell, user, ratingUserSellRepository);
+            }
+        }
+
+        System.out.println("Sample sells created with details and ratings.");
+    }
+
+    private void createSellDetails(Sell sell, List<Product> products, SellDetailRepository sellDetailRepository) {
+        Random random = new Random();
+        int[] productIds = {1, 2, 3};  // Los IDs de los productos predefinidos
+
+        // Seleccionar entre 1 a 3 productos aleatorios para la venta
+        int numProducts = random.nextInt(3) + 1;
+
+        for (int i = 0; i < numProducts; i++) {
+            int productId = productIds[random.nextInt(productIds.length)];  // Seleccionar producto aleatorio por ID
+            Product product = products.stream().filter(p -> p.getProductId() == productId).findFirst().orElse(null);  // Obtener el producto por ID
+
+            if (product == null) {
+                System.out.println("Product with ID " + productId + " not found.");
+                continue;  // Si el producto no existe, salimos y pasamos al siguiente
+            }
+
+            // Crear detalle de venta
+            SellDetail sellDetail = new SellDetail();
+            sellDetail.setSell(sell);
+            sellDetail.setProduct(product);  // Asociar el producto completo
+            sellDetail.setQuantity(random.nextInt(3) + 1);  // Cantidad aleatoria de productos
+            sellDetail.setUnitPrice(product.getPrice());  // Obtener el precio del producto
+            sellDetail.setTotalPrice(sellDetail.getQuantity() * sellDetail.getUnitPrice());
+
+            // Guardar el detalle de la venta
+            sellDetailRepository.save(sellDetail);
+        }
+    }
+
+    private void createRatingForSell(Sell sell, User waiter, RatingUserSellRepository ratingUserSellRepository) {
+        // Crear una calificación para la venta
+        RatingUserSell rating = new RatingUserSell();
+        rating.setSell(sell);
+        rating.setUser(waiter);  // Asociar el mesero
+        rating.setStars(new Random().nextInt(5) + 1);  // Asignar una calificación aleatoria (1-5)
+
+        // Guardar la calificación
+        ratingUserSellRepository.save(rating);
+    }
+
+    private double generateTotalPrice() {
+        Random random = new Random();
+        double totalPrice = 0;
+
+        // Generamos un precio aleatorio sumando precios de productos aleatorios
+        int[] productPrices = {80, 90, 100};  // Precios de los productos con IDs 1, 2, 3
+
+        int numProducts = random.nextInt(3) + 1;
+        for (int i = 0; i < numProducts; i++) {
+            totalPrice += productPrices[random.nextInt(productPrices.length)];
+        }
+
+        return totalPrice;
+    }
+
 
 }

@@ -1,12 +1,14 @@
 package jbar.service_core.Sell.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jbar.service_core.User.Model.User;
 import jbar.service_core.RatingUserSell.Model.RatingUserSell;
 import jbar.service_core.Sell_Detail.Model.SellDetail;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.sql.Date;  // Usamos java.sql.Date para representar la fecha
+import java.sql.Time;  // Usamos java.sql.Time para representar el tiempo
+import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
@@ -19,41 +21,60 @@ public class Sell {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
     @Column(name = "sell_date", nullable = false)
-    private LocalDateTime sellDate;
+    private Timestamp sellDate;  // Usamos java.sql.Timestamp para la fecha y hora completas
 
     @Column(name = "sell_time", nullable = false)
-    private LocalTime sellTime;
+    private Time sellTime;  // Usamos java.sql.Time para el tiempo
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());  // Timestamp actual
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Timestamp updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Timestamp deletedAt;
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = new Timestamp(System.currentTimeMillis());  // Actualizamos a la hora actual
     }
-
     // Relación con RatingUserSell (Para registrar calificaciones de meseros)
     @OneToMany(mappedBy = "sell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<RatingUserSell> ratings;
 
     // Relación con SellDetail (Para almacenar los productos vendidos en esta venta)
     @OneToMany(mappedBy = "sell", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<SellDetail> sellDetails;
+
+    public Sell() {
+    }
+
+    public Sell(Integer sellId, User user, Double totalPrice, Timestamp sellDate, Time sellTime, Boolean status, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt, List<RatingUserSell> ratings, List<SellDetail> sellDetails) {
+        this.sellId = sellId;
+        this.user = user;
+        this.totalPrice = totalPrice;
+        this.sellDate = sellDate;
+        this.sellTime = sellTime;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+        this.ratings = ratings;
+        this.sellDetails = sellDetails;
+    }
 
     public Integer getSellId() {
         return sellId;
@@ -78,20 +99,11 @@ public class Sell {
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
-
-    public LocalDateTime getSellDate() {
-        return sellDate;
-    }
-
-    public void setSellDate(LocalDateTime sellDate) {
-        this.sellDate = sellDate;
-    }
-
-    public LocalTime getSellTime() {
+    public Time getSellTime() {
         return sellTime;
     }
 
-    public void setSellTime(LocalTime sellTime) {
+    public void setSellTime(Time sellTime) {
         this.sellTime = sellTime;
     }
 
@@ -103,23 +115,35 @@ public class Sell {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Timestamp getSellDate() {
+        return sellDate;
+    }
+
+    public void setSellDate(Timestamp sellDate) {
+        this.sellDate = sellDate;
+    }
+
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public LocalDateTime getDeletedAt() {
+    public Timestamp getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void setDeletedAt(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
     }
 

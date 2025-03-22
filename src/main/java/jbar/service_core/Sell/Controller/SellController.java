@@ -1,12 +1,21 @@
 package jbar.service_core.Sell.Controller;
 
 import jbar.service_core.Sell.Model.SellDTO;
+import jbar.service_core.Util.Enum.TypesResponse;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 
 @RestController
 @RequestMapping("/sell")
@@ -40,10 +49,35 @@ public class SellController {
     // Obtener ventas por rango de fechas
     @GetMapping("/by-date")
     public ResponseEntity<Message> getSellsByDateRange(
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate
+            @RequestParam String startDate,
+            @RequestParam String endDate
     ) {
-        return sellService.findByDateRange(startDate, endDate);
+        try {
+            // Convertir String a Date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false); // Esto hace que el parsing sea estricto
+
+            Date parsedStartDate = dateFormat.parse(startDate);
+            Date parsedEndDate = dateFormat.parse(endDate);
+
+            Timestamp startTimestamp = new Timestamp(parsedStartDate.getTime());
+
+            // Ajustar endTimestamp al final del día
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(parsedEndDate);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            Timestamp endTimestamp = new Timestamp(cal.getTimeInMillis());
+
+            return sellService.findByDateRange(startTimestamp, endTimestamp);
+        } catch (ParseException e) {
+            return new ResponseEntity<>(
+                    new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
     }
 
     // Crear una venta
@@ -62,5 +96,38 @@ public class SellController {
     @PutMapping("/status/{id}")
     public ResponseEntity<Message> changeSellStatus(@PathVariable Integer id) {
         return sellService.changeStatus(id);
+    }
+
+    @GetMapping("/chart-data")
+    public ResponseEntity<Message> getSalesChartData(
+            @RequestParam String startDate,
+            @RequestParam String endDate
+    ) {
+        try {
+            // Convertir String a Date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false);
+
+            Date parsedStartDate = dateFormat.parse(startDate);
+            Date parsedEndDate = dateFormat.parse(endDate);
+
+            Timestamp startTimestamp = new Timestamp(parsedStartDate.getTime());
+
+            // Ajustar endTimestamp al final del día
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(parsedEndDate);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            Timestamp endTimestamp = new Timestamp(cal.getTimeInMillis());
+
+            return sellService.getSalesChartData(startTimestamp, endTimestamp);
+        } catch (ParseException e) {
+            return new ResponseEntity<>(
+                    new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
     }
 }

@@ -3,6 +3,8 @@ package jbar.service_core.RatingUserSell.Model;
 import jakarta.persistence.*;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.User.Model.User;
+
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,18 +27,19 @@ public class RatingUserSell {
     private Integer stars;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Date createdAt = new Date(System.currentTimeMillis());  // Usar Date
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Date updatedAt;  // Cambiar a Date
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Date deletedAt;  // Cambiar a Date
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = new Date(System.currentTimeMillis());  // Establecer la fecha de actualización
     }
+
 
     // Constructores
     public RatingUserSell() {}
@@ -80,19 +83,27 @@ public class RatingUserSell {
         this.stars = stars;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public LocalDateTime getDeletedAt() {
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Date getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
     }
 }

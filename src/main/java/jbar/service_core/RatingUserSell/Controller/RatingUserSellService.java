@@ -80,23 +80,4 @@ public class RatingUserSellService {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new Message(ratingUserSell, "Rating created", TypesResponse.SUCCESS));
     }
-
-    @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<Message> changeStatus(Integer id) {
-        Optional<RatingUserSell> rating = ratingUserSellRepository.findById(id);
-        if (rating.isPresent()) {
-            RatingUserSell existingRating = rating.get();
-            if (existingRating.getDeletedAt() == null) {
-                existingRating.setDeletedAt(Date.valueOf(LocalDate.now()).toLocalDate().atStartOfDay());
-            } else {
-                existingRating.setDeletedAt(null);
-            }
-            ratingUserSellRepository.save(existingRating);
-            log.info("Rating with id {} status changed", id);
-            return new ResponseEntity<>(new Message(null, "Rating status changed", TypesResponse.SUCCESS), HttpStatus.OK);
-        } else {
-            log.warn("Rating with id {} not found for status change", id);
-            return new ResponseEntity<>(new Message(null, "Rating not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-        }
-    }
 }

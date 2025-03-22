@@ -40,9 +40,4 @@ public class RatingUserSellController {
         return ratingUserSellService.create(ratingDTO);
     }
 
-    // Cambiar el estado de una calificación (Soft Delete)
-    @PutMapping("/status/{id}")
-    public ResponseEntity<Message> changeRatingStatus(@PathVariable Integer id) {
-        return ratingUserSellService.changeStatus(id);
-    }
 }

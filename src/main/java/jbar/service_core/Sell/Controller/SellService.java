@@ -1,5 +1,6 @@
 package jbar.service_core.Sell.Controller;
 
+import jbar.service_core.Sell.Model.SalesChartDTO;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Sell.Model.SellDTO;
 import jbar.service_core.Sell.Model.SellRepository;
@@ -15,9 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Timestamp;  // Usamos Timestamp para manejar fechas con hora
+import java.sql.Time;      // Usamos Time para manejar solo la hora
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -58,7 +60,7 @@ public class SellService {
 
     // Obtener ventas en un rango de fechas
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public ResponseEntity<Message> findByDateRange(Timestamp startDate, Timestamp endDate) {
         List<Sell> sells = sellRepository.findBySellDateBetween(startDate, endDate);
         return sells.isEmpty()
                 ? new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR), HttpStatus.NOT_FOUND)
@@ -77,8 +79,8 @@ public class SellService {
             Sell sell = new Sell();
             sell.setUser(user.get());
             sell.setTotalPrice(sellDTO.getTotalPrice());
-            sell.setSellDate(sellDTO.getSellDate());
-            sell.setSellTime(sellDTO.getSellTime());
+            sell.setSellDate(sellDTO.getSellDate());  // Timestamp
+            sell.setSellTime(sellDTO.getSellTime());  // Time
             sell.setStatus(sellDTO.getStatus());
 
             sellRepository.save(sell);
@@ -101,8 +103,8 @@ public class SellService {
 
             Sell sell = existingSell.get();
             sell.setTotalPrice(sellDTO.getTotalPrice());
-            sell.setSellDate(sellDTO.getSellDate());
-            sell.setSellTime(sellDTO.getSellTime());
+            sell.setSellDate(sellDTO.getSellDate());  // Timestamp
+            sell.setSellTime(sellDTO.getSellTime());  // Time
             sell.setStatus(sellDTO.getStatus());
 
             sellRepository.save(sell);
@@ -122,7 +124,7 @@ public class SellService {
             Sell existingSell = sell.get();
             if (existingSell.getStatus()) {
                 existingSell.setStatus(false);
-                existingSell.setDeletedAt(LocalDateTime.now());
+                existingSell.setDeletedAt(new Timestamp(System.currentTimeMillis())); // Establecer fecha y hora actuales
             } else {
                 existingSell.setStatus(true);
                 existingSell.setDeletedAt(null);
@@ -134,5 +136,57 @@ public class SellService {
         } else {
             return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
         }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> getSalesChartData(Timestamp startDate, Timestamp endDate) {
+        List<Sell> sells = sellRepository.findBySellDateBetween(startDate, endDate);
+
+        if (sells.isEmpty()) {
+            return new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+
+        // Agrupar ventas por mes y sumar los totales
+        Map<String, Double> salesByMonth = new LinkedHashMap<>();
+
+        // Definir nombres de meses en español
+        String[] monthNames = {"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"};
+
+        // Inicializar el mapa con todos los meses en el rango (para asegurar que todos aparezcan incluso si no tienen ventas)
+        Calendar startCal = Calendar.getInstance();
+        startCal.setTimeInMillis(startDate.getTime());
+
+        Calendar endCal = Calendar.getInstance();
+        endCal.setTimeInMillis(endDate.getTime());
+
+        Calendar currentCal = (Calendar) startCal.clone();
+        while (!currentCal.after(endCal)) {
+            int month = currentCal.get(Calendar.MONTH);
+            int year = currentCal.get(Calendar.YEAR);
+            String key = monthNames[month] + " " + year;
+            salesByMonth.put(key, 0.0);
+
+            currentCal.add(Calendar.MONTH, 1);
+        }
+
+        // Sumar ventas por mes
+        for (Sell sell : sells) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(sell.getSellDate().getTime());
+
+            int month = cal.get(Calendar.MONTH);
+            int year = cal.get(Calendar.YEAR);
+            String key = monthNames[month] + " " + year;
+
+            // Sumar al total existente
+            double currentTotal = salesByMonth.getOrDefault(key, 0.0);
+            salesByMonth.put(key, currentTotal + sell.getTotalPrice());
+        }
+
+        // Convertir el mapa a la lista de DTOs
+        List<SalesChartDTO> chartData = salesByMonth.entrySet().stream()
+                .map(entry -> new SalesChartDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new Message(chartData, "Sales chart data retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 }
