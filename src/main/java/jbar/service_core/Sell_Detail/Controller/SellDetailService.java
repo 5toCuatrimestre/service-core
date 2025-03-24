@@ -7,6 +7,7 @@ import jbar.service_core.Sell.Model.SellRepository;
 import jbar.service_core.Sell_Detail.Model.SellDetail;
 import jbar.service_core.Sell_Detail.Model.SellDetailDTO;
 import jbar.service_core.Sell_Detail.Model.SellDetailRepository;
+import jbar.service_core.Sell_Detail.Model.TopProductChartDTO;
 import jbar.service_core.Util.Response.Message;
 import jbar.service_core.Util.Enum.TypesResponse;
 
@@ -16,8 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SellDetailService {
@@ -63,4 +68,20 @@ public class SellDetailService {
             return new ResponseEntity<>(new Message(null, "Error creating SellDetail", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> getTopSellingProducts(Timestamp startDate, Timestamp endDate) {
+        List<Object[]> rawData = sellDetailRepository.findTopSellingProducts(startDate, endDate);
+
+        List<TopProductChartDTO> chartData = rawData.stream()
+                .map(row -> new TopProductChartDTO(
+                        (String) row[0],
+                        ((Number) row[1]).intValue()
+                ))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new Message(chartData, "Top selling products retrieved", TypesResponse.SUCCESS),
+                HttpStatus.OK);
+    }
+
 }

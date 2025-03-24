@@ -1,6 +1,7 @@
 package jbar.service_core.Sell.Controller;
 
 import jbar.service_core.Sell.Model.SalesChartDTO;
+import jbar.service_core.Sell.Model.SalesTimeChartDTO;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Sell.Model.SellDTO;
 import jbar.service_core.Sell.Model.SellRepository;
@@ -16,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;  // Usamos Timestamp para manejar fechas con hora
-import java.sql.Time;      // Usamos Time para manejar solo la hora
+import java.sql.Timestamp; // Usamos Timestamp para manejar fechas con hora
+import java.sql.Time; // Usamos Time para manejar solo la hora
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,8 +46,10 @@ public class SellService {
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findById(Integer id) {
         Optional<Sell> sell = sellRepository.findById(id);
-        return sell.map(value -> new ResponseEntity<>(new Message(value, "Sell found", TypesResponse.SUCCESS), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND));
+        return sell.map(
+                value -> new ResponseEntity<>(new Message(value, "Sell found", TypesResponse.SUCCESS), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR),
+                        HttpStatus.NOT_FOUND));
     }
 
     // Obtener ventas por usuario
@@ -54,7 +57,8 @@ public class SellService {
     public ResponseEntity<Message> findByUserId(Integer userId) {
         List<Sell> sells = sellRepository.findByUserUserId(userId);
         return sells.isEmpty()
-                ? new ResponseEntity<>(new Message(null, "No sells found for user", TypesResponse.ERROR), HttpStatus.NOT_FOUND)
+                ? new ResponseEntity<>(new Message(null, "No sells found for user", TypesResponse.ERROR),
+                        HttpStatus.NOT_FOUND)
                 : new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
@@ -63,7 +67,8 @@ public class SellService {
     public ResponseEntity<Message> findByDateRange(Timestamp startDate, Timestamp endDate) {
         List<Sell> sells = sellRepository.findBySellDateBetween(startDate, endDate);
         return sells.isEmpty()
-                ? new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR), HttpStatus.NOT_FOUND)
+                ? new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR),
+                        HttpStatus.NOT_FOUND)
                 : new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
@@ -73,14 +78,15 @@ public class SellService {
         try {
             Optional<User> user = userRepository.findById(sellDTO.getUserId());
             if (user.isEmpty()) {
-                return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR),
+                        HttpStatus.NOT_FOUND);
             }
 
             Sell sell = new Sell();
             sell.setUser(user.get());
             sell.setTotalPrice(sellDTO.getTotalPrice());
-            sell.setSellDate(sellDTO.getSellDate());  // Timestamp
-            sell.setSellTime(sellDTO.getSellTime());  // Time
+            sell.setSellDate(sellDTO.getSellDate()); // Timestamp
+            sell.setSellTime(sellDTO.getSellTime()); // Time
             sell.setStatus(sellDTO.getStatus());
 
             sellRepository.save(sell);
@@ -88,7 +94,8 @@ public class SellService {
             return new ResponseEntity<>(new Message(sell, "Sell created", TypesResponse.SUCCESS), HttpStatus.CREATED);
         } catch (Exception e) {
             log.error("Error creating sell: {}", e.getMessage());
-            return new ResponseEntity<>(new Message(null, "Error creating sell", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new Message(null, "Error creating sell", TypesResponse.ERROR),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -98,13 +105,14 @@ public class SellService {
         try {
             Optional<Sell> existingSell = sellRepository.findById(id);
             if (existingSell.isEmpty()) {
-                return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR),
+                        HttpStatus.NOT_FOUND);
             }
 
             Sell sell = existingSell.get();
             sell.setTotalPrice(sellDTO.getTotalPrice());
-            sell.setSellDate(sellDTO.getSellDate());  // Timestamp
-            sell.setSellTime(sellDTO.getSellTime());  // Time
+            sell.setSellDate(sellDTO.getSellDate()); // Timestamp
+            sell.setSellTime(sellDTO.getSellTime()); // Time
             sell.setStatus(sellDTO.getStatus());
 
             sellRepository.save(sell);
@@ -112,7 +120,8 @@ public class SellService {
             return new ResponseEntity<>(new Message(sell, "Sell updated", TypesResponse.SUCCESS), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error updating sell with id {}: {}", id, e.getMessage());
-            return new ResponseEntity<>(new Message(null, "Error updating sell", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new Message(null, "Error updating sell", TypesResponse.ERROR),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -124,7 +133,8 @@ public class SellService {
             Sell existingSell = sell.get();
             if (existingSell.getStatus()) {
                 existingSell.setStatus(false);
-                existingSell.setDeletedAt(new Timestamp(System.currentTimeMillis())); // Establecer fecha y hora actuales
+                existingSell.setDeletedAt(new Timestamp(System.currentTimeMillis())); // Establecer fecha y hora
+                                                                                      // actuales
             } else {
                 existingSell.setStatus(true);
                 existingSell.setDeletedAt(null);
@@ -137,21 +147,24 @@ public class SellService {
             return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
         }
     }
+
     @Transactional(readOnly = true)
     public ResponseEntity<Message> getSalesChartData(Timestamp startDate, Timestamp endDate) {
         List<Sell> sells = sellRepository.findBySellDateBetween(startDate, endDate);
 
         if (sells.isEmpty()) {
-            return new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR),
+                    HttpStatus.NOT_FOUND);
         }
 
         // Agrupar ventas por mes y sumar los totales
         Map<String, Double> salesByMonth = new LinkedHashMap<>();
 
         // Definir nombres de meses en español
-        String[] monthNames = {"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"};
+        String[] monthNames = { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
 
-        // Inicializar el mapa con todos los meses en el rango (para asegurar que todos aparezcan incluso si no tienen ventas)
+        // Inicializar el mapa con todos los meses en el rango (para asegurar que todos
+        // aparezcan incluso si no tienen ventas)
         Calendar startCal = Calendar.getInstance();
         startCal.setTimeInMillis(startDate.getTime());
 
@@ -187,6 +200,51 @@ public class SellService {
                 .map(entry -> new SalesChartDTO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(new Message(chartData, "Sales chart data retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+        return new ResponseEntity<>(new Message(chartData, "Sales chart data retrieved", TypesResponse.SUCCESS),
+                HttpStatus.OK);
     }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> getAverageSalesByHour(Timestamp startDate, Timestamp endDate) {
+        List<Sell> sells = sellRepository.findBySellDateBetween(startDate, endDate);
+
+        if (sells.isEmpty()) {
+            return new ResponseEntity<>(new Message(null, "No sells found in date range", TypesResponse.ERROR),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        // Mapa: Hora -> Lista de precios
+        Map<String, List<Double>> salesByHour = new LinkedHashMap<>();
+
+        // Inicializamos todas las horas de 08:00 a 22:00 con listas vacías (para
+        // asegurar consistencia)
+        for (int hour = 8; hour <= 22; hour++) {
+            String hourKey = String.format("%02d:00", hour);
+            salesByHour.put(hourKey, new ArrayList<>());
+        }
+
+        // Llenar el mapa con las ventas correspondientes
+        for (Sell sell : sells) {
+            int hour = sell.getSellTime().toLocalTime().getHour();
+
+            if (hour >= 8 && hour <= 22) { // Solo consideramos de 08:00 a 22:00 como en tu ejemplo
+                String hourKey = String.format("%02d:00", hour);
+                salesByHour.get(hourKey).add(sell.getTotalPrice());
+            }
+        }
+
+        // Convertimos a DTOs con el promedio de ventas por hora
+        List<SalesTimeChartDTO> chartData = salesByHour.entrySet().stream()
+                .map(entry -> {
+                    List<Double> ventas = entry.getValue();
+                    double promedio = ventas.isEmpty() ? 0.0
+                            : ventas.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+                    return new SalesTimeChartDTO(entry.getKey(), promedio);
+                })
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new Message(chartData, "Average sales per hour retrieved", TypesResponse.SUCCESS),
+                HttpStatus.OK);
+    }
+
 }

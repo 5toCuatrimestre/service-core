@@ -3,6 +3,7 @@ package jbar.service_core.Sell.Controller;
 import jbar.service_core.Sell.Model.SellDTO;
 import jbar.service_core.Util.Enum.TypesResponse;
 import jbar.service_core.Util.Response.Message;
+import jbar.service_core.Sell_Detail.Controller.SellDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -22,10 +23,12 @@ import java.util.Calendar;
 public class SellController {
 
     private final SellService sellService;
+    private final SellDetailService sellDetailService;
 
     @Autowired
-    public SellController(SellService sellService) {
+    public SellController(SellService sellService, SellDetailService sellDetailService) {
         this.sellService = sellService;
+        this.sellDetailService = sellDetailService;
     }
 
     // Obtener todas las ventas
@@ -50,8 +53,7 @@ public class SellController {
     @GetMapping("/by-date")
     public ResponseEntity<Message> getSellsByDateRange(
             @RequestParam String startDate,
-            @RequestParam String endDate
-    ) {
+            @RequestParam String endDate) {
         try {
             // Convertir String a Date
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -75,8 +77,7 @@ public class SellController {
         } catch (ParseException e) {
             return new ResponseEntity<>(
                     new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
-                    HttpStatus.BAD_REQUEST
-            );
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -101,8 +102,7 @@ public class SellController {
     @GetMapping("/chart-data")
     public ResponseEntity<Message> getSalesChartData(
             @RequestParam String startDate,
-            @RequestParam String endDate
-    ) {
+            @RequestParam String endDate) {
         try {
             // Convertir String a Date
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -126,8 +126,69 @@ public class SellController {
         } catch (ParseException e) {
             return new ResponseEntity<>(
                     new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
-                    HttpStatus.BAD_REQUEST
-            );
+                    HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/average-sales-by-hour")
+    public ResponseEntity<Message> getAverageSalesByHour(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false);
+
+            Date parsedStartDate = dateFormat.parse(startDate);
+            Date parsedEndDate = dateFormat.parse(endDate);
+
+            Timestamp startTimestamp = new Timestamp(parsedStartDate.getTime());
+
+            // Ajustamos el endTimestamp al final del día
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(parsedEndDate);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            Timestamp endTimestamp = new Timestamp(cal.getTimeInMillis());
+
+            return sellService.getAverageSalesByHour(startTimestamp, endTimestamp);
+
+        } catch (ParseException e) {
+            return new ResponseEntity<>(
+                    new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/top-selling-products")
+    public ResponseEntity<Message> getTopSellingProducts(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false);
+
+            Date parsedStartDate = dateFormat.parse(startDate);
+            Date parsedEndDate = dateFormat.parse(endDate);
+
+            Timestamp startTimestamp = new Timestamp(parsedStartDate.getTime());
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(parsedEndDate);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            Timestamp endTimestamp = new Timestamp(cal.getTimeInMillis());
+
+            return sellDetailService.getTopSellingProducts(startTimestamp, endTimestamp);
+
+        } catch (ParseException e) {
+            return new ResponseEntity<>(
+                    new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
