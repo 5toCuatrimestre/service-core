@@ -57,7 +57,7 @@ public class AuthController {
 
         long expirationTime = jwtUtil.getExpirationTime();
 
-        return new AuthResponse(jwt, user.getUserId(), user.getEmail(), expirationTime);
+        return new AuthResponse(jwt, user.getUserId(), user.getRol(), user.getEmail(), expirationTime);
     }
 
 
