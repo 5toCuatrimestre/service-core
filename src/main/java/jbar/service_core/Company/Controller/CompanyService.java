@@ -48,15 +48,24 @@ public class CompanyService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(CompanyDTO companyDTO) {
+        // ✅ Siempre se asigna manualmente el ID de la compañía por defecto (ID = 1)
+        Optional<Company> existingCompany = companyRepository.findById(1);
+        if (existingCompany.isPresent()) {
+            log.warn("Default Company with ID 1 already exists.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new Message(null, "Default Company ID 1 already exists", TypesResponse.ERROR));
+        }
+
         Company company = new Company();
         company.setName(companyDTO.getName());
         company.setAddress(companyDTO.getAddress());
         company.setCreatedAt(LocalDateTime.now());
+
         companyRepository.save(company);
 
         log.info("Company created successfully: {}", company);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Message(company, "Company created", TypesResponse.SUCCESS));
+                .body(new Message(company, "Company created successfully", TypesResponse.SUCCESS));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -73,6 +82,22 @@ public class CompanyService {
         }
         return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
+
+    // 🔹 Nuevo método para guardar solo la URL de la imagen
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<Message> updateCompanyImage(Integer id, String imageUrl) {
+        Optional<Company> existingCompanyOptional = companyRepository.findById(id);
+        if (existingCompanyOptional.isPresent()) {
+            Company company = existingCompanyOptional.get();
+            company.setUrl(imageUrl); // Se actualiza solo la URL de la imagen
+            company.setUpdatedAt(LocalDateTime.now());
+
+            companyRepository.saveAndFlush(company);
+            return ResponseEntity.ok(new Message(company, "Company image updated", TypesResponse.SUCCESS));
+        }
+        return new ResponseEntity<>(new Message(null, "Company not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> delete(Integer id) {
         Optional<Company> companyOptional = companyRepository.findById(id);

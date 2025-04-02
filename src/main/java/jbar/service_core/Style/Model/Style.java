@@ -1,7 +1,10 @@
 package jbar.service_core.Style.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jbar.service_core.Company_Style.Model.CompanyStyle;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,12 +14,6 @@ public class Style {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer styleId;
-
-    @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
-    private String name;
-
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
@@ -29,50 +26,57 @@ public class Style {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    // 🔹 Se mapea JSON con nombres en mayúscula, pero las variables internas están en minúscula (buena práctica)
+    @JsonProperty("H1")
     @Column(name = "h1", nullable = false)
-    private String H1;
+    private String h1;
 
+    @JsonProperty("H2")
     @Column(name = "h2", nullable = false)
-    private String H2;
+    private String h2;
 
+    @JsonProperty("H3")
     @Column(name = "h3", nullable = false)
-    private String H3;
+    private String h3;
 
+    @JsonProperty("P")
     @Column(name = "p", nullable = false)
-    private String P;
+    private String p;
 
+    @JsonProperty("BgCard")
     @Column(name = "bg_card", nullable = false)
-    private String BgCard;
+    private String bgCard;
 
+    @JsonProperty("BgInterface")
     @Column(name = "bg_interface", nullable = false)
-    private String BgInterface;
+    private String bgInterface;
 
+    @JsonProperty("BgButton")
     @Column(name = "bg_button", nullable = false)
-    private String BgButton;
+    private String bgButton;
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 
+    @JsonIgnore
     @OneToMany(mappedBy = "style", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompanyStyle> companyStyles;
 
     public Style() {}
 
-    public Style(Integer styleId, String name, String description, Boolean status,
-                 String H1, String H2, String H3, String P, String BgCard, String BgInterface, String BgButton) {
+    public Style(Integer styleId, Boolean status, String h1, String h2, String h3, String p, String bgCard, String bgInterface, String bgButton) {
         this.styleId = styleId;
-        this.name = name;
-        this.description = description;
         this.status = status;
-        this.H1 = H1;
-        this.H2 = H2;
-        this.H3 = H3;
-        this.P = P;
-        this.BgCard = BgCard;
-        this.BgInterface = BgInterface;
-        this.BgButton = BgButton;
+        this.h1 = h1;
+        this.h2 = h2;
+        this.h3 = h3;
+        this.p = p;
+        this.bgCard = bgCard;
+        this.bgInterface = bgInterface;
+        this.bgButton = bgButton;
     }
 
     // Getters y Setters
@@ -82,22 +86,6 @@ public class Style {
 
     public void setStyleId(Integer styleId) {
         this.styleId = styleId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Boolean getStatus() {
@@ -129,59 +117,59 @@ public class Style {
     }
 
     public String getH1() {
-        return H1;
+        return h1;
     }
 
     public void setH1(String h1) {
-        H1 = h1;
+        this.h1 = h1;
     }
 
     public String getH2() {
-        return H2;
+        return h2;
     }
 
     public void setH2(String h2) {
-        H2 = h2;
+        this.h2 = h2;
     }
 
     public String getH3() {
-        return H3;
+        return h3;
     }
 
     public void setH3(String h3) {
-        H3 = h3;
+        this.h3 = h3;
     }
 
     public String getP() {
-        return P;
+        return p;
     }
 
     public void setP(String p) {
-        P = p;
+        this.p = p;
     }
 
     public String getBgCard() {
-        return BgCard;
+        return bgCard;
     }
 
     public void setBgCard(String bgCard) {
-        BgCard = bgCard;
+        this.bgCard = bgCard;
     }
 
     public String getBgInterface() {
-        return BgInterface;
+        return bgInterface;
     }
 
     public void setBgInterface(String bgInterface) {
-        BgInterface = bgInterface;
+        this.bgInterface = bgInterface;
     }
 
     public String getBgButton() {
-        return BgButton;
+        return bgButton;
     }
 
     public void setBgButton(String bgButton) {
-        BgButton = bgButton;
+        this.bgButton = bgButton;
     }
 
     public List<CompanyStyle> getCompanyStyles() {

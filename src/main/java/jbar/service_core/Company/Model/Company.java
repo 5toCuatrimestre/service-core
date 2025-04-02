@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "company")
 public class Company {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer companyId;
@@ -14,8 +15,11 @@ public class Company {
     @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    @Column(name = "address", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "address", columnDefinition = "TEXT")
     private String address;
+
+    @Column(name = "url", columnDefinition = "TEXT")
+    private String url;
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
@@ -32,16 +36,25 @@ public class Company {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    // 🔹 Constructor por defecto
     public Company() {
         this.createdAt = LocalDateTime.now();
     }
 
+    // 🔹 Constructor con parámetros
     public Company(String name, String address) {
         this.name = name;
         this.address = address;
         this.createdAt = LocalDateTime.now();
     }
 
+    // 🔹 Hook para actualizar automáticamente `updatedAt`
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 🔹 Getters y Setters
     public Integer getCompanyId() {
         return companyId;
     }
@@ -66,6 +79,14 @@ public class Company {
         this.address = address;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -88,5 +109,13 @@ public class Company {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

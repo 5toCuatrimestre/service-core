@@ -1,9 +1,9 @@
 package jbar.service_core.Product.Model;
 
-import jakarta.persistence.*;
 import jbar.service_core.Company.Model.Company;
+import jbar.service_core.Product_Category.Model.ProductCategory;
 import jbar.service_core.Sell_Detail.Model.SellDetail;
-
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,10 +14,10 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer productId;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(100)", nullable = false)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "price", nullable = false)
@@ -37,7 +37,7 @@ public class Product {
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @ManyToMany
@@ -51,16 +51,24 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SellDetail> sellDetails;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductCategory> productCategories;
+
+    // 🔹 Constructor por defecto
     public Product() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public Product(Integer productId, String name, String description, Double price, Boolean status) {
-        this.productId = productId;
+    // 🔹 Constructor parametrizado (Corrección)
+    public Product(String name, String description, double price) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.status = status;
+        this.status = true;  // Inicializamos en activo por defecto
+        this.createdAt = LocalDateTime.now();
     }
+
+    // 🔹 Getters y Setters
 
     public Integer getProductId() {
         return productId;
@@ -106,6 +114,10 @@ public class Product {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
@@ -120,21 +132,5 @@ public class Product {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public List<Company> getCompanies() {
-        return companies;
-    }
-
-    public void setCompanies(List<Company> companies) {
-        this.companies = companies;
-    }
-
-    public List<SellDetail> getSellDetails() {
-        return sellDetails;
-    }
-
-    public void setSellDetails(List<SellDetail> sellDetails) {
-        this.sellDetails = sellDetails;
     }
 }

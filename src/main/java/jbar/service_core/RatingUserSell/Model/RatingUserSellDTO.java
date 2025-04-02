@@ -30,14 +30,14 @@ public class RatingUserSellDTO {
 
     @Schema(description = "Timestamp when the rating was created.", example = "2024-02-11")
     @NotNull(groups = {Create.class})
-    private Date createdAt;
+    private Date createdAt;  // Cambiar a Date
 
     @Schema(description = "Timestamp when the rating was last updated.", example = "2024-02-11")
     @NotNull(groups = {Update.class})
-    private Date updatedAt;
+    private Date updatedAt;  // Cambiar a Date
 
     @Schema(description = "Timestamp when the rating was deleted (if applicable).", example = "2024-02-11")
-    private Date deletedAt;
+    private Date deletedAt;  // Cambiar a Date
 
     public RatingUserSellDTO() {}
 

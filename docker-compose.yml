@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/core_db?serverTimezone=America/Mexico_City&useLegacyDateTimeCode=false&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=integradora1
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=lossolesutez@gmail.com
+      - SPRING_MAIL_PASSWORD=jllr lhlc vgcw xgxi
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST=smtp.gmail.com
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED=true
+      - CLOUDFLARE_R2_ACCESS_KEY=69770f6e5394b26574825942edaac65b
+      - CLOUDFLARE_R2_SECRET_KEY=4f084dfa57375f60cc5acd34f10325c1095cdaf422bb82850422e3b792b2fadc
+      - CLOUDFLARE_R2_BUCKET_NAME=global-storage
+      - CLOUDFLARE_R2_ENDPOINT=https://f2fe0c030af34be51000e1b6170c97d3.r2.cloudflarestorage.com
+      - CLOUDFLARE_R2_PUBLIC_URL=pub-c3312bde490a4f4e8e5d3ce1606e7208.r2.dev
+      - JWT_SECRET=7bTB86PkZitaAvzP4wEnTMzmOi8vCge9fSU+G6vnfBQ=
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=core_db
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=integradora1
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge 

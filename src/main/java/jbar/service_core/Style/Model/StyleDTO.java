@@ -3,16 +3,10 @@ package jbar.service_core.Style.Model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
-
 @Schema(description = "Style DTO")
 public class StyleDTO {
 
     private Integer styleId;
-
-    @NotBlank(message = "Style name cannot be blank")
-    private String name;
-
-    private String description;
 
     private Boolean status;
 
@@ -20,39 +14,42 @@ public class StyleDTO {
     private String header;
 
     @Schema(description = "H1 color", example = "#000000")
-    private String h1;
+    private String H1;
 
     @Schema(description = "H2 color", example = "#222222")
-    private String h2;
+    private String H2;
 
     @Schema(description = "H3 color", example = "#444444")
-    private String h3;
+    private String H3;
 
     @Schema(description = "Paragraph text color", example = "#666666")
-    private String p;
+    private String P;
+    @Schema(description = "Background color for card", example = "#FFFFFF") // 🔹 AGREGADO
+    private String bgCard;
 
     @Schema(description = "Background color for interface", example = "#EEEEEE")
-    private String byInterface;
+    private String bgInterface;
 
     @Schema(description = "Background color for buttons", example = "#FF0000")
-    private String byButton;
+    private String bgButton;
 
     public StyleDTO() {}
 
-    public StyleDTO(Integer styleId, String name, String description, Boolean status,
-                    String header, String h1, String h2, String h3, String p,
-                    String byInterface, String byButton) {
+    public StyleDTO(Integer styleId, Boolean status,
+                    String header, String h1, String h2, String h3, String p,String bgCard,
+                    String bgInterface, String bgButton) {
         this.styleId = styleId;
-        this.name = name;
-        this.description = description;
+
+
         this.status = status;
         this.header = header;
-        this.h1 = h1;
-        this.h2 = h2;
-        this.h3 = h3;
-        this.p = p;
-        this.byInterface = byInterface;
-        this.byButton = byButton;
+        this.H1 = h1;
+        this.H2 = h2;
+        this.H3 = h3;
+        this.P = p;
+        this.bgCard = bgCard; // 🔹 AGREGADO
+        this.bgInterface = bgInterface;
+        this.bgButton = bgButton;
     }
 
     public Integer getStyleId() {
@@ -61,22 +58,6 @@ public class StyleDTO {
 
     public void setStyleId(Integer styleId) {
         this.styleId = styleId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Boolean getStatus() {
@@ -96,50 +77,58 @@ public class StyleDTO {
     }
 
     public String getH1() {
-        return h1;
+        return H1;
     }
 
     public void setH1(String h1) {
-        this.h1 = h1;
+        this.H1 = h1;
     }
 
     public String getH2() {
-        return h2;
+        return H2;
     }
 
     public void setH2(String h2) {
-        this.h2 = h2;
+        this.H2 = h2;
     }
 
     public String getH3() {
-        return h3;
+        return H3;
     }
 
     public void setH3(String h3) {
-        this.h3 = h3;
+        this.H3 = h3;
     }
 
     public String getP() {
-        return p;
+        return P;
     }
 
     public void setP(String p) {
-        this.p = p;
+        this.P = p;
     }
 
-    public String getByInterface() {
-        return byInterface;
+    public String getBgButton() {
+        return bgButton;
     }
 
-    public void setByInterface(String byInterface) {
-        this.byInterface = byInterface;
+    public void setBgButton(String bgButton) {
+        this.bgButton = bgButton;
     }
 
-    public String getByButton() {
-        return byButton;
+    public String getBgInterface() {
+        return bgInterface;
     }
 
-    public void setByButton(String byButton) {
-        this.byButton = byButton;
+    public void setBgInterface(String bgInterface) {
+        this.bgInterface = bgInterface;
+    }
+
+    public String getBgCard() {
+        return bgCard;
+    }
+
+    public void setBgCard(String bgCard) {
+        this.bgCard = bgCard;
     }
 }

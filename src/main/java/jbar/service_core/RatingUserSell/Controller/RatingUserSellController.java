@@ -1,11 +1,18 @@
 package jbar.service_core.RatingUserSell.Controller;
 
+import jbar.service_core.Util.Enum.TypesResponse;
 import jbar.service_core.Util.Response.Message;
 import jbar.service_core.RatingUserSell.Model.RatingUserSellDTO;
+
+import java.text.SimpleDateFormat;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.sql.Date;
 @RestController
 @RequestMapping("/rating-user-sell")
 public class RatingUserSellController {
@@ -40,9 +47,28 @@ public class RatingUserSellController {
         return ratingUserSellService.create(ratingDTO);
     }
 
-    // Cambiar el estado de una calificación (Soft Delete)
-    @PutMapping("/status/{id}")
-    public ResponseEntity<Message> changeRatingStatus(@PathVariable Integer id) {
-        return ratingUserSellService.changeStatus(id);
+    @GetMapping("/chart/waiter-ratings")
+    public ResponseEntity<Message> getWaiterRatingsChart(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false);
+
+            java.util.Date parsedStart = dateFormat.parse(startDate);
+            java.util.Date parsedEnd = dateFormat.parse(endDate);
+
+            // Convertimos a java.sql.Date para que sea compatible con tu entidad
+            Date sqlStartDate = new Date(parsedStart.getTime());
+            Date sqlEndDate = new Date(parsedEnd.getTime());
+
+            return ratingUserSellService.getWaiterRatingsChart(sqlStartDate, sqlEndDate);
+
+        } catch (ParseException e) {
+            return new ResponseEntity<>(
+                    new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
+                    HttpStatus.BAD_REQUEST);
+        }
     }
+
 }

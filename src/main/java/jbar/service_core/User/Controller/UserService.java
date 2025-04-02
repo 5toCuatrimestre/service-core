@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +27,12 @@ import java.util.Optional;
 public class UserService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     @Transactional(readOnly = true)
@@ -61,9 +65,9 @@ public class UserService {
     public ResponseEntity<Message> create(UserDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
-        user.setLastName(userDTO.getLastName());
+        user.setLastName("idk");
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getEmail()));
         user.setRol(userDTO.getRol());
         user.setStatus(Status.ACTIVE);
         user.setPhoneNumber(userDTO.getPhoneNumber());
@@ -76,6 +80,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new Message(user, "User created", TypesResponse.SUCCESS));
     }
+
     //SIEMPRE EL ID EN PATHVARIABLE
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, UserDTO userDTO) {
@@ -85,9 +90,7 @@ public class UserService {
             User user = existingUserOptional.get();
             // Asignamos todos los valores desde el DTO al usuario existente
             user.setName(userDTO.getName());
-            user.setLastName(userDTO.getLastName());
             user.setEmail(userDTO.getEmail());
-            user.setPassword(userDTO.getPassword());
             user.setStatus(userDTO.getStatus());
             user.setRol(userDTO.getRol());
             user.setPhoneNumber(userDTO.getPhoneNumber());

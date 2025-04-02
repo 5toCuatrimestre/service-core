@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Schema(description = "Site Data Transfer Object (DTO)")
 public class SiteDTO {
@@ -27,19 +27,17 @@ public class SiteDTO {
     private Boolean status;
 
     @Schema(description = "Timestamp when the site was created.", example = "2024-02-25")
-    @NotNull(groups = {Create.class})
-    private Date createdAt;
+    private LocalDate createdAt;
 
     @Schema(description = "Timestamp when the site was last updated.", example = "2024-02-25")
-    @NotNull(groups = {Update.class})
-    private Date updatedAt;
+    private LocalDate updatedAt;
 
     @Schema(description = "Timestamp when the site was deleted (if applicable).", example = "2024-02-25")
-    private Date deletedAt;
+    private LocalDate deletedAt;
 
     public SiteDTO() {}
 
-    public SiteDTO(String name, String location, Boolean status, Date createdAt, Date updatedAt, Date deletedAt) {
+    public SiteDTO(String name, String location, Boolean status, LocalDate createdAt, LocalDate updatedAt, LocalDate deletedAt) {
         this.name = name;
         this.location = location;
         this.status = status;
@@ -48,27 +46,19 @@ public class SiteDTO {
         this.deletedAt = deletedAt;
     }
 
-    public @NotBlank(groups = {Create.class, Update.class}, message = "Site name cannot be blank.")
-    @Size(min = 2, max = 100, message = "Site name must be between 2 and 100 characters.")
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(@NotBlank(groups = {Create.class, Update.class}, message = "Site name cannot be blank.")
-                        @Size(min = 2, max = 100, message = "Site name must be between 2 and 100 characters.")
-                        String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public @NotBlank(groups = {Create.class, Update.class}, message = "Site location cannot be blank.")
-    @Size(max = 255, message = "Site location must not exceed 255 characters.")
-    String getLocation() {
+    public String getLocation() {
         return location;
     }
 
-    public void setLocation(@NotBlank(groups = {Create.class, Update.class}, message = "Site location cannot be blank.")
-                            @Size(max = 255, message = "Site location must not exceed 255 characters.")
-                            String location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 
@@ -80,29 +70,27 @@ public class SiteDTO {
         this.status = status;
     }
 
-    public @NotNull(groups = {Create.class})
-    Date getCreatedAt() {
+    public LocalDate getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(@NotNull(groups = {Create.class}) Date createdAt) {
+    public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
 
-    public @NotNull(groups = {Update.class})
-    Date getUpdatedAt() {
+    public LocalDate getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(@NotNull(groups = {Update.class}) Date updatedAt) {
+    public void setUpdatedAt(LocalDate updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Date getDeletedAt() {
+    public LocalDate getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(Date deletedAt) {
+    public void setDeletedAt(LocalDate deletedAt) {
         this.deletedAt = deletedAt;
     }
 }
