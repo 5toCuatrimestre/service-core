@@ -60,9 +60,22 @@ public class UserService {
         return new ResponseEntity<>(new Message(users, "Users found by role", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
-    //Recuerda poner el tipo de Transactional
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(UserDTO userDTO) {
+        // Verificar si ya existe un usuario con el mismo email
+        Optional<User> existingUserByEmail = userRepository.findUserByEmail(userDTO.getEmail());
+        if (existingUserByEmail.isPresent()) {
+            log.warn("User creation failed: Email {} already exists", userDTO.getEmail());
+            return new ResponseEntity<>(new Message(null, "El email ya está registrado", TypesResponse.ERROR), HttpStatus.BAD_REQUEST);
+        }
+
+        // Verificar si ya existe un usuario con el mismo número de teléfono
+        List<User> existingUsersByPhone = userRepository.findByPhoneNumber(userDTO.getPhoneNumber());
+        if (!existingUsersByPhone.isEmpty()) {
+            log.warn("User creation failed: Phone number {} already exists", userDTO.getPhoneNumber());
+            return new ResponseEntity<>(new Message(null, "El número de teléfono ya está registrado", TypesResponse.ERROR), HttpStatus.BAD_REQUEST);
+        }
+
         User user = new User();
         user.setName(userDTO.getName());
         user.setLastName("idk");
@@ -71,7 +84,6 @@ public class UserService {
         user.setRol(userDTO.getRol());
         user.setStatus(Status.ACTIVE);
         user.setPhoneNumber(userDTO.getPhoneNumber());
-        //Siempre se recibe la fecha desde frontend :)
         user.setCreatedAt(userDTO.getCreatedAt());
 
         userRepository.save(user);
@@ -81,13 +93,27 @@ public class UserService {
                 .body(new Message(user, "User created", TypesResponse.SUCCESS));
     }
 
-    //SIEMPRE EL ID EN PATHVARIABLE
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> update(Integer id, UserDTO userDTO) {
         Optional<User> existingUserOptional = userRepository.findById(id);
 
         if (existingUserOptional.isPresent()) {
             User user = existingUserOptional.get();
+
+            // Verificar si el email ya existe para otro usuario
+            Optional<User> userWithSameEmail = userRepository.findUserByEmail(userDTO.getEmail());
+            if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getUserId().equals(id)) {
+                log.warn("User update failed: Email {} already exists for another user", userDTO.getEmail());
+                return new ResponseEntity<>(new Message(null, "El email ya está registrado para otro usuario", TypesResponse.ERROR), HttpStatus.BAD_REQUEST);
+            }
+
+            // Verificar si el número de teléfono ya existe para otro usuario
+            List<User> usersWithSamePhone = userRepository.findByPhoneNumber(userDTO.getPhoneNumber());
+            if (!usersWithSamePhone.isEmpty() && !usersWithSamePhone.get(0).getUserId().equals(id)) {
+                log.warn("User update failed: Phone number {} already exists for another user", userDTO.getPhoneNumber());
+                return new ResponseEntity<>(new Message(null, "El número de teléfono ya está registrado para otro usuario", TypesResponse.ERROR), HttpStatus.BAD_REQUEST);
+            }
+
             // Asignamos todos los valores desde el DTO al usuario existente
             user.setName(userDTO.getName());
             user.setEmail(userDTO.getEmail());
@@ -96,7 +122,7 @@ public class UserService {
             user.setPhoneNumber(userDTO.getPhoneNumber());
             user.setUpdatedAt(Date.valueOf(LocalDate.now()));
 
-            userRepository.saveAndFlush(user); // Guarda y refresca en la BD
+            userRepository.saveAndFlush(user);
 
             log.info("User with id {} updated successfully", id);
             return ResponseEntity.ok(new Message(user, "User updated", TypesResponse.SUCCESS));
@@ -105,7 +131,7 @@ public class UserService {
         log.warn("User with id {} not found for update", id);
         return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
-    //SIEMPRE EL ID EN PATHVARIABLE
+
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> changeStatus(Integer id) {
         Optional<User> user = userRepository.findById(id);
@@ -116,7 +142,6 @@ public class UserService {
                 existingUser.setDeletedAt(Date.valueOf(LocalDate.now()));
             } else {
                 existingUser.setStatus(Status.ACTIVE);
-                //Hace falta que actualice la ultima fecha de updated_at
                 existingUser.setDeletedAt(null);
             }
             userRepository.save(existingUser);
