@@ -10,6 +10,7 @@ import jbar.service_core.User.Model.UserRepository;
 
 import jbar.service_core.Util.Enum.Status;
 import jbar.service_core.Util.Enum.TypesResponse;
+import jbar.service_core.Util.Enum.Rol;
 import jbar.service_core.Util.Response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -49,7 +51,7 @@ public class AuthController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
-        final String jwt = jwtUtil.generateToken(userDetails, user.getUserId());  // Aquí pasamos el ID del usuario
+        final String jwt = jwtUtil.generateToken(userDetails, user.getUserId());
 
         if (authService.isTokenInvalid(jwt)) {
             throw new Exception("Token inválido");
@@ -60,6 +62,33 @@ public class AuthController {
         return new AuthResponse(jwt, user.getUserId(), user.getRol(), user.getEmail(), expirationTime);
     }
 
+    @PostMapping("/admin/login")
+    public AuthResponse adminLogin(@RequestBody AuthRequest authRequest) throws Exception {
+        User user = userRepository.findUserByEmail(authRequest.getEmail()).orElseThrow(() -> new Exception("Usuario no encontrado"));
+
+        if (user.getStatus() != Status.ACTIVE) {
+            throw new Exception("El usuario está inactivo");
+        }
+
+        if (user.getRol() != Rol.ADMIN) {
+            throw new Exception("Acceso denegado. Solo para administradores");
+        }
+
+        if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+            throw new Exception("Correo o contraseña incorrectos");
+        }
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
+        final String jwt = jwtUtil.generateToken(userDetails, user.getUserId());
+
+        if (authService.isTokenInvalid(jwt)) {
+            throw new Exception("Token inválido");
+        }
+
+        long expirationTime = jwtUtil.getExpirationTime();
+
+        return new AuthResponse(jwt, user.getUserId(), user.getRol(), user.getEmail(), expirationTime);
+    }
 
     @DeleteMapping("/logout")
     public ResponseEntity<Message> logout(@RequestHeader(value = "Authorization", required = false) String token) throws Exception {
