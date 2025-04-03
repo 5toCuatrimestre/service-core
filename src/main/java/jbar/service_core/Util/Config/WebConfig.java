@@ -1,23 +1,23 @@
-package jbar.service_core.Util.Config;
+  package jbar.service_core.Util.Config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+  import org.springframework.context.annotation.Configuration;
+  import org.springframework.web.servlet.config.annotation.CorsRegistry;
+  import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
+  @Configuration
+  public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-            .allowedOrigins(
-                "https://ucore.cloud",       // Dominio de producción
-                "http://localhost:5173",    // Desarrollo local
-                "http://127.0.0.1:5173"     // Alternativa local
-            )
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With")
-            .exposedHeaders("Authorization") // Headers visibles para el frontend
-            .allowCredentials(true)          // Permite cookies/JWT
-            .maxAge(3600);                  // Cache de preflight (1 hora)
+      registry.addMapping("/**")
+              .allowedOrigins(
+                      "http://localhost:3000",
+                      "http://localhost:8081",
+                      "http://localhost:8080",
+                      "http://localhost:5000" // Añade esto si es necesario
+              )
+              .allowedMethods("*") // Permite todos los métodos
+              .allowedHeaders("*") // Permite todos los headers
+              .allowCredentials(true)
+              .maxAge(3600); // Cache de opciones CORS por 1 hora
     }
-}
+  }
