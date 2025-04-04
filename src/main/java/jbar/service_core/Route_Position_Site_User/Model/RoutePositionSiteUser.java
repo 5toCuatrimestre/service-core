@@ -13,14 +13,17 @@ public class RoutePositionSiteUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)
     private Route route;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_site_id", nullable = false)
     private PositionSite positionSite;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -58,6 +61,7 @@ public class RoutePositionSiteUser {
         this.id = id;
     }
 
+    @JsonIgnore
     public Route getRoute() {
         return route;
     }
@@ -66,6 +70,11 @@ public class RoutePositionSiteUser {
         this.route = route;
     }
 
+    public Integer getRouteId() {
+        return route != null ? route.getRouteId() : null;
+    }
+
+    @JsonIgnore
     public PositionSite getPositionSite() {
         return positionSite;
     }
@@ -74,12 +83,21 @@ public class RoutePositionSiteUser {
         this.positionSite = positionSite;
     }
 
-    public User getUserId() {
+    public Integer getPositionSiteId() {
+        return positionSite != null ? positionSite.getPositionSiteId() : null;
+    }
+
+    @JsonIgnore
+    public User getUser() {
         return user;
     }
 
-    public void setUserId(User user) {
+    public void setUser(User user) {
         this.user = user;
+    }
+
+    public Integer getUserId() {
+        return user != null ? user.getUserId() : null;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -90,6 +108,7 @@ public class RoutePositionSiteUser {
         this.createdAt = createdAt;
     }
 
+    @JsonIgnore
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
@@ -98,6 +117,7 @@ public class RoutePositionSiteUser {
         this.updatedAt = updatedAt;
     }
 
+    @JsonIgnore
     public LocalDateTime getDeletedAt() {
         return deletedAt;
     }

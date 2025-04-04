@@ -39,6 +39,14 @@ public class RoutePositionSiteUserController {
     }
 
     /**
+     * 🔹 Obtener una relación por positionSiteId
+     */
+    @GetMapping("/position-site/{positionSiteId}")
+    public ResponseEntity<Message> getByPositionSiteId(@PathVariable Integer positionSiteId) {
+        return routePositionSiteUserService.findByPositionSiteId(positionSiteId);
+    }
+
+    /**
      * 🔹 Crear una nueva relación Route-Position-Site-User
      */
     @PostMapping

@@ -69,6 +69,13 @@ public class RoutePositionSiteUserService {
         return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findByPositionSiteId(Integer positionSiteId) {
+        List<RoutePositionSiteUser> entities = repository.findByPositionSite_PositionSiteId(positionSiteId);
+        log.info("Found {} RoutePositionSiteUsers for positionSiteId {}", entities.size(), positionSiteId);
+        return ResponseEntity.ok(new Message(entities, "RoutePositionSiteUsers found", TypesResponse.SUCCESS));
+    }
+
     /**
      * 🔹 Crear una nueva relación Route-PositionSite-User
      */
@@ -103,7 +110,7 @@ public class RoutePositionSiteUserService {
             RoutePositionSiteUser entity = new RoutePositionSiteUser();
             entity.setRoute(route.get());
             entity.setPositionSite(positionSite.get());
-            entity.setUserId(user.get()); // 🔹 Ahora asignamos correctamente el usuario
+            entity.setUser(user.get());
             entity.setCreatedAt(LocalDateTime.now());
 
             // Guardar la entidad
@@ -137,7 +144,7 @@ public class RoutePositionSiteUserService {
 
             entity.setRoute(route.get());
             entity.setPositionSite(positionSite.get());
-            entity.setUserId(user.get());
+            entity.setUser(user.get());
             entity.setUpdatedAt(LocalDateTime.now());
             repository.saveAndFlush(entity);
 
