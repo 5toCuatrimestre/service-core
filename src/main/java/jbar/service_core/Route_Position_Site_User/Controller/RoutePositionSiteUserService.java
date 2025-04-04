@@ -133,19 +133,36 @@ public class RoutePositionSiteUserService {
         if (existingEntity.isPresent()) {
             RoutePositionSiteUser entity = existingEntity.get();
 
+            // Verificar que la ruta existe
             Optional<Route> route = routeRepository.findById(dto.getRouteId());
-            Optional<PositionSite> positionSite = positionSiteRepository.findById(dto.getPositionSiteId());
-            Optional<User> user = userRepository.findById(dto.getUserId());
-
-            if (route.isEmpty() || positionSite.isEmpty() || user.isEmpty()) {
-                log.warn("One or more entities not found for RoutePositionSiteUser update");
-                return new ResponseEntity<>(new Message(null, "Invalid data provided", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            if (route.isEmpty()) {
+                log.warn("Route with ID {} not found", dto.getRouteId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new Message(null, "Route not found", TypesResponse.ERROR));
             }
 
+            // Verificar que el sitio de posición existe
+            Optional<PositionSite> positionSite = positionSiteRepository.findById(dto.getPositionSiteId());
+            if (positionSite.isEmpty()) {
+                log.warn("PositionSite with ID {} not found", dto.getPositionSiteId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new Message(null, "PositionSite not found", TypesResponse.ERROR));
+            }
+
+            // Verificar que el usuario existe
+            Optional<User> user = userRepository.findById(dto.getUserId());
+            if (user.isEmpty()) {
+                log.warn("User with ID {} not found", dto.getUserId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new Message(null, "User not found", TypesResponse.ERROR));
+            }
+
+            // Actualizar las relaciones
             entity.setRoute(route.get());
             entity.setPositionSite(positionSite.get());
             entity.setUser(user.get());
             entity.setUpdatedAt(LocalDateTime.now());
+
             repository.saveAndFlush(entity);
 
             log.info("RoutePositionSiteUser with id {} updated successfully", id);
