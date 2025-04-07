@@ -50,6 +50,14 @@ public class RoutePositionSiteUserController {
     }
 
     /**
+     * 🔹 Obtener una relación por userId
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Message> getByUserId(@PathVariable Integer userId) {
+        return routePositionSiteUserService.findByUserId(userId);
+    }
+
+    /**
      * 🔹 Crear una nueva relación Route-Position-Site-User
      */
     @PostMapping
@@ -77,9 +85,10 @@ public class RoutePositionSiteUserController {
     public ResponseEntity<Message> deleteRoutePositionSiteUser(@PathVariable Integer id) {
         return routePositionSiteUserService.delete(id);
     }
-    @GetMapping("/mobile/waiter/{userId}")
-    public List<PositionSite> getTablesForWaiter(@PathVariable Integer userId) {
-        return routePositionSiteUserService.findAssignedTablesForWaiter(userId);
+
+    @GetMapping("/user/{userId}/positions")
+    public ResponseEntity<Message> getAssignedPositionsForWaiter(@PathVariable Integer userId) {
+        return routePositionSiteUserService.findAssignedPositionsForWaiter(userId);
     }
 
 

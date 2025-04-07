@@ -20,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -75,6 +78,53 @@ public class RoutePositionSiteUserService {
         List<RoutePositionSiteUser> entities = repository.findByPositionSite_PositionSiteId(positionSiteId);
         log.info("Found {} RoutePositionSiteUsers for positionSiteId {}", entities.size(), positionSiteId);
         return ResponseEntity.ok(new Message(entities, "RoutePositionSiteUsers found", TypesResponse.SUCCESS));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findByUserId(Integer userId) {
+        List<RoutePositionSiteUser> entities = repository.findByUser_UserId(userId);
+        log.info("Found {} RoutePositionSiteUsers for userId {}", entities.size(), userId);
+        return ResponseEntity.ok(new Message(entities, "RoutePositionSiteUsers found", TypesResponse.SUCCESS));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findAssignedPositionsForWaiter(Integer userId) {
+        log.info("Buscando posiciones para el usuario ID: {}", userId);
+        
+        List<RoutePositionSiteUser> assignments = repository.findByUser_UserIdAndDeletedAtIsNull(userId);
+        log.info("Asignaciones encontradas: {}", assignments.size());
+        
+        List<Map<String, Object>> positionsData = new ArrayList<>();
+        
+        for (RoutePositionSiteUser assignment : assignments) {
+            log.info("Procesando asignación ID: {}", assignment.getId());
+            log.info("PositionSite ID de la asignación: {}", assignment.getPositionSite().getPositionSiteId());
+            
+            Optional<PositionSite> positionSite = positionSiteRepository.findById(assignment.getPositionSite().getPositionSiteId());
+            if (positionSite.isPresent()) {
+                log.info("PositionSite encontrado: {}", positionSite.get());
+                if (positionSite.get().getDeletedAt() == null) {
+                    log.info("PositionSite válido, agregando a la lista");
+                    PositionSite ps = positionSite.get();
+                    Map<String, Object> positionData = new HashMap<>();
+                    positionData.put("position_siteId", ps.getPositionSiteId());
+                    positionData.put("positionId", ps.getPosition().getPositionId());
+                    positionData.put("siteId", ps.getSite().getSiteId());
+                    positionData.put("capacity", ps.getCapacity());
+                    positionData.put("xLocation", ps.getXLocation());
+                    positionData.put("yLocation", ps.getYLocation());
+                    positionData.put("status", ps.getStatus());
+                    positionsData.add(positionData);
+                } else {
+                    log.info("PositionSite eliminado, saltando");
+                }
+            } else {
+                log.warn("PositionSite no encontrado para ID: {}", assignment.getPositionSite().getPositionSiteId());
+            }
+        }
+        
+        log.info("Total de posiciones encontradas: {}", positionsData.size());
+        return ResponseEntity.ok(new Message(positionsData, "Posiciones asignadas encontradas", TypesResponse.SUCCESS));
     }
 
     /**
@@ -192,13 +242,5 @@ public class RoutePositionSiteUserService {
 
         log.warn("RoutePositionSiteUser with id {} not found for deletion", id);
         return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-    }
-    @Transactional(readOnly = true)
-    public List<PositionSite> findAssignedTablesForWaiter(Integer userId) {
-        List<RoutePositionSiteUser> assignments = repository.findByUserUserIdAndDeletedAtIsNull(userId);
-        return assignments.stream()
-                .map(RoutePositionSiteUser::getPositionSite)
-                .filter(site -> site.getDeletedAt() == null)
-                .collect(Collectors.toList());
     }
 }

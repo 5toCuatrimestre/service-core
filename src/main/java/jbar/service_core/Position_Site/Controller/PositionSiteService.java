@@ -5,6 +5,8 @@ import jbar.service_core.Position.Model.PositionRepository;
 import jbar.service_core.Position_Site.Service.PositionSite;
 import jbar.service_core.Position_Site.Service.PositionSiteDTO;
 import jbar.service_core.Position_Site.Service.PositionSiteRepository;
+import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUser;
+import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUserRepository;
 import jbar.service_core.Site.Model.Site;
 import jbar.service_core.Site.Model.SiteRepository;
 import jbar.service_core.Util.Enum.TypesResponse;
@@ -28,16 +30,19 @@ public class PositionSiteService {
     private final PositionSiteRepository positionSiteRepository;
     private final PositionRepository positionRepository;
     private final SiteRepository siteRepository;
+    private final RoutePositionSiteUserRepository routePositionSiteUserRepository;
 
     @Autowired
     public PositionSiteService(
             PositionSiteRepository positionSiteRepository,
             PositionRepository positionRepository,
-            SiteRepository siteRepository
+            SiteRepository siteRepository,
+            RoutePositionSiteUserRepository routePositionSiteUserRepository
     ) {
         this.positionSiteRepository = positionSiteRepository;
         this.positionRepository = positionRepository;
         this.siteRepository = siteRepository;
+        this.routePositionSiteUserRepository = routePositionSiteUserRepository;
     }
 
     /**
@@ -150,8 +155,14 @@ public class PositionSiteService {
             positionSite.setDeletedAt(LocalDateTime.now()); // Soft delete
             positionSiteRepository.save(positionSite);
 
-            log.info("PositionSite with id {} soft deleted successfully", id);
-            return new ResponseEntity<>(new Message(null, "PositionSite deleted (soft delete)", TypesResponse.SUCCESS), HttpStatus.OK);
+            // Actualizar registros relacionados en RoutePositionSiteUser
+            List<RoutePositionSiteUser> relatedRecords = routePositionSiteUserRepository.findByPositionSite_PositionSiteId(id);
+            LocalDateTime now = LocalDateTime.now();
+            relatedRecords.forEach(record -> record.setDeletedAt(now));
+            routePositionSiteUserRepository.saveAll(relatedRecords);
+
+            log.info("PositionSite with id {} and related records soft deleted successfully", id);
+            return new ResponseEntity<>(new Message(null, "PositionSite and related records deleted (soft delete)", TypesResponse.SUCCESS), HttpStatus.OK);
         }
 
         log.warn("PositionSite with id {} not found for deletion", id);
