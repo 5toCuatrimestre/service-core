@@ -85,6 +85,7 @@ public class DataInitializer {
             System.out.println("Data Initialization complete.");
         };
     }
+
     // Método para inicializar usuarios
     private void initializeUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         User[] users = new User[] {
