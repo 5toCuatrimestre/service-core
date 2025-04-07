@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -167,5 +168,13 @@ public class RoutePositionSiteUserService {
 
         log.warn("RoutePositionSiteUser with id {} not found for deletion", id);
         return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+    }
+    @Transactional(readOnly = true)
+    public List<PositionSite> findAssignedTablesForWaiter(Integer userId) {
+        List<RoutePositionSiteUser> assignments = repository.findByUserUserIdAndDeletedAtIsNull(userId);
+        return assignments.stream()
+                .map(RoutePositionSiteUser::getPositionSite)
+                .filter(site -> site.getDeletedAt() == null)
+                .collect(Collectors.toList());
     }
 }
