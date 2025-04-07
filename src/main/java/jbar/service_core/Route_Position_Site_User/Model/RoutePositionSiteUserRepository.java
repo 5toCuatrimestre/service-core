@@ -19,4 +19,6 @@ public interface RoutePositionSiteUserRepository extends JpaRepository<RoutePosi
 
     // 🔹 Buscar solo los registros activos (Soft Delete)
     List<RoutePositionSiteUser> findByDeletedAtIsNull();
+    List<RoutePositionSiteUser> findByUserUserIdAndDeletedAtIsNull(Integer userId);
+
 }
