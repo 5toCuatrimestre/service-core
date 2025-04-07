@@ -56,8 +56,8 @@ public class SellDetailService {
             sellDetail.setSell(sell.get());
             sellDetail.setProduct(product.get());
             sellDetail.setQuantity(sellDetailDTO.getQuantity());
-            sellDetail.setUnitPrice(sellDetailDTO.getUnitPrice());
-            sellDetail.setTotalPrice(sellDetailDTO.getTotalPrice());
+            sellDetail.setUnitPrice(product.get().getPrice()); // Obtener el precio del producto
+            sellDetail.setTotalPrice(sellDetailDTO.getQuantity() * product.get().getPrice());
 
             sellDetailRepository.save(sellDetail);
 
@@ -66,6 +66,43 @@ public class SellDetailService {
         } catch (Exception e) {
             log.error("Error creating SellDetail: {}", e.getMessage());
             return new ResponseEntity<>(new Message(null, "Error creating SellDetail", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Message> update(Integer id, SellDetailDTO sellDetailDTO) {
+        try {
+            Optional<SellDetail> existingSellDetail = sellDetailRepository.findById(id);
+            if (existingSellDetail.isEmpty()) {
+                log.warn("SellDetail with id {} not found", id);
+                return new ResponseEntity<>(new Message(null, "SellDetail not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            Optional<Sell> sell = sellRepository.findById(sellDetailDTO.getSellId());
+            if (sell.isEmpty()) {
+                log.warn("Sell with id {} not found", sellDetailDTO.getSellId());
+                return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            Optional<Product> product = productRepository.findById(sellDetailDTO.getProductId());
+            if (product.isEmpty()) {
+                log.warn("Product with id {} not found", sellDetailDTO.getProductId());
+                return new ResponseEntity<>(new Message(null, "Product not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            SellDetail sellDetail = existingSellDetail.get();
+            sellDetail.setSell(sell.get());
+            sellDetail.setProduct(product.get());
+            sellDetail.setQuantity(sellDetailDTO.getQuantity());
+            sellDetail.setUnitPrice(product.get().getPrice()); // Obtener el precio del producto
+            sellDetail.setTotalPrice(sellDetailDTO.getQuantity() * product.get().getPrice());
+
+            sellDetailRepository.save(sellDetail);
+
+            log.info("SellDetail updated successfully: {}", sellDetail);
+            return new ResponseEntity<>(new Message(sellDetail, "SellDetail updated", TypesResponse.SUCCESS), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error updating SellDetail: {}", e.getMessage());
+            return new ResponseEntity<>(new Message(null, "Error updating SellDetail", TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,5 +120,4 @@ public class SellDetailService {
         return new ResponseEntity<>(new Message(chartData, "Top selling products retrieved", TypesResponse.SUCCESS),
                 HttpStatus.OK);
     }
-
 }
