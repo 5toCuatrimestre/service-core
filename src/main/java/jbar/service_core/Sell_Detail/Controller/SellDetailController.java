@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/sell-details")
+@RequestMapping("/sell-details")
 public class SellDetailController {
 
     private final SellDetailService sellDetailService;
@@ -25,5 +25,10 @@ public class SellDetailController {
     @PutMapping("/{id}")
     public ResponseEntity<Message> updateSellDetail(@PathVariable Integer id, @RequestBody SellDetailDTO sellDetailDTO) {
         return sellDetailService.update(id, sellDetailDTO);
+    }
+
+    @GetMapping("/sell/{sellId}")
+    public ResponseEntity<Message> getSellDetailsBySellId(@PathVariable Integer sellId) {
+        return sellDetailService.getSellDetailsBySellId(sellId);
     }
 }

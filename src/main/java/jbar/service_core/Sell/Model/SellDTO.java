@@ -26,6 +26,9 @@ public class SellDTO {
     @NotNull(message = "Sell time is required")
     private Time sellTime;  // Usamos java.sql.Time para el tiempo // Usamos java.sql.Time para el tiempo
 
+    @NotNull(message = "Position Site ID is required")
+    private Integer position_site_id;
+
     @NotNull(message = "Status is required")
     private Boolean status;
 
@@ -35,11 +38,12 @@ public class SellDTO {
     public SellDTO() {
     }
 
-    public SellDTO(Integer userId, Double totalPrice, Timestamp sellDate, Time sellTime, Boolean status, List<SellDetailDTO> sellDetails) {
+    public SellDTO(Integer userId, Double totalPrice, Timestamp sellDate, Time sellTime, Integer position_site_id, Boolean status, List<SellDetailDTO> sellDetails) {
         this.userId = userId;
         this.totalPrice = totalPrice;
         this.sellDate = sellDate;
         this.sellTime = sellTime;
+        this.position_site_id = position_site_id;
         this.status = status;
         this.sellDetails = sellDetails;
     }
@@ -74,6 +78,14 @@ public class SellDTO {
 
     public void setSellTime(@NotNull(message = "Sell time is required") Time sellTime) {
         this.sellTime = sellTime;
+    }
+
+    public @NotNull(message = "Position Site ID is required") Integer getPosition_site_id() {
+        return position_site_id;
+    }
+
+    public void setPosition_site_id(@NotNull(message = "Position Site ID is required") Integer position_site_id) {
+        this.position_site_id = position_site_id;
     }
 
     public @NotNull(message = "Status is required") Boolean getStatus() {

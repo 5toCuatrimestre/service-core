@@ -55,9 +55,18 @@ public class SellService {
     // Obtener ventas por usuario
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findByUserId(Integer userId) {
-        List<Sell> sells = sellRepository.findByUserUserId(userId);
+        List<Sell> sells = sellRepository.findByUserUserIdAndDeletedAtIsNull(userId);
         return sells.isEmpty()
                 ? new ResponseEntity<>(new Message(null, "No sells found for user", TypesResponse.ERROR),
+                        HttpStatus.NOT_FOUND)
+                : new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findByPositionSiteId(Integer positionSiteId) {
+        List<Sell> sells = sellRepository.findByPositionSiteIdAndDeletedAtIsNull(positionSiteId);
+        return sells.isEmpty()
+                ? new ResponseEntity<>(new Message(null, "No sells found for position site", TypesResponse.ERROR),
                         HttpStatus.NOT_FOUND)
                 : new ResponseEntity<>(new Message(sells, "Sells retrieved", TypesResponse.SUCCESS), HttpStatus.OK);
     }
@@ -84,7 +93,8 @@ public class SellService {
 
             Sell sell = new Sell();
             sell.setUser(user.get());
-            sell.setTotalPrice(sellDTO.getTotalPrice());
+            sell.setTotalPrice(0.0);
+            sell.setPositionSiteId(sellDTO.getPosition_site_id());
             sell.setSellDate(sellDTO.getSellDate()); // Timestamp
             sell.setSellTime(sellDTO.getSellTime()); // Time
             sell.setStatus(sellDTO.getStatus());
