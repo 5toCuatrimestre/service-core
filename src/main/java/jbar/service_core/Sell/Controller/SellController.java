@@ -49,6 +49,11 @@ public class SellController {
         return sellService.findByUserId(userId);
     }
 
+    @GetMapping("/position-site/{positionSiteId}")
+    public ResponseEntity<Message> getSellsByPositionSite(@PathVariable Integer positionSiteId) {
+        return sellService.findByPositionSiteId(positionSiteId);
+    }
+
     // Obtener ventas por rango de fechas
     @GetMapping("/by-date")
     public ResponseEntity<Message> getSellsByDateRange(

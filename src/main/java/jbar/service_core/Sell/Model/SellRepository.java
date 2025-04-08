@@ -10,6 +10,11 @@ import java.util.List;
 public interface SellRepository extends JpaRepository<Sell, Integer> {
 
     List<Sell> findByUserUserId(Integer userId);
+    
+    //delete null
+    List<Sell> findByUserUserIdAndDeletedAtIsNull(Integer userId);
+
+    List<Sell> findByPositionSiteIdAndDeletedAtIsNull(Integer positionSiteId);
 
     List<Sell> findBySellDateBetween(Timestamp startDate, Timestamp endDate);
 
