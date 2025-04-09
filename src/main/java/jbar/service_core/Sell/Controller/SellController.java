@@ -49,6 +49,11 @@ public class SellController {
         return sellService.findByUserId(userId);
     }
 
+    @GetMapping("/position-site/{positionSiteId}")
+    public ResponseEntity<Message> getSellsByPositionSite(@PathVariable Integer positionSiteId) {
+        return sellService.findByPositionSiteId(positionSiteId);
+    }
+
     // Obtener ventas por rango de fechas
     @GetMapping("/by-date")
     public ResponseEntity<Message> getSellsByDateRange(
@@ -189,6 +194,11 @@ public class SellController {
                     new Message(null, "Invalid date format. Use yyyy-MM-dd", TypesResponse.ERROR),
                     HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/ticket/{sellId}")
+    public ResponseEntity<Message> generateTicket(@PathVariable Integer sellId) {
+        return sellService.generateTicket(sellId);
     }
 
 }

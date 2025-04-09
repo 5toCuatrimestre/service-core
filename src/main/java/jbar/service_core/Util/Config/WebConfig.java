@@ -9,15 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins(
-                "https://ucore.cloud",       // Dominio de producción
-                "http://localhost:5173",    // Desarrollo local
-                "http://127.0.0.1:5173"     // Alternativa local
-            )
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With")
-            .exposedHeaders("Authorization") // Headers visibles para el frontend
-            .allowCredentials(true)          // Permite cookies/JWT
-            .maxAge(3600);                  // Cache de preflight (1 hora)
+                .allowedOriginPatterns("*") // Permite cualquier origen
+                .allowedMethods("*") // Permite todos los métodos
+                .allowedHeaders("*") // Permite todos los headers
+                .allowCredentials(true)
+                .maxAge(3600); // Cache de opciones CORS por 1 hora
     }
 }

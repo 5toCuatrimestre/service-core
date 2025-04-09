@@ -1,5 +1,6 @@
 package jbar.service_core.Route_Position_Site_User.Controller;
 
+import jbar.service_core.Position_Site.Service.PositionSite;
 import jbar.service_core.Route_Position_Site_User.Model.RoutePositionSiteUserDTO;
 import jbar.service_core.Util.Response.Message;
 import jbar.service_core.Util.Enum.TypesResponse;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/route-position-site-user")
@@ -39,6 +42,22 @@ public class RoutePositionSiteUserController {
     }
 
     /**
+     * 🔹 Obtener una relación por positionSiteId
+     */
+    @GetMapping("/position-site/{positionSiteId}")
+    public ResponseEntity<Message> getByPositionSiteId(@PathVariable Integer positionSiteId) {
+        return routePositionSiteUserService.findByPositionSiteId(positionSiteId);
+    }
+
+    /**
+     * 🔹 Obtener una relación por userId
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Message> getByUserId(@PathVariable Integer userId) {
+        return routePositionSiteUserService.findByUserId(userId);
+    }
+
+    /**
      * 🔹 Crear una nueva relación Route-Position-Site-User
      */
     @PostMapping
@@ -66,4 +85,11 @@ public class RoutePositionSiteUserController {
     public ResponseEntity<Message> deleteRoutePositionSiteUser(@PathVariable Integer id) {
         return routePositionSiteUserService.delete(id);
     }
+
+    @GetMapping("/user/{userId}/positions")
+    public ResponseEntity<Message> getAssignedPositionsForWaiter(@PathVariable Integer userId) {
+        return routePositionSiteUserService.findAssignedPositionsForWaiter(userId);
+    }
+
+
 }

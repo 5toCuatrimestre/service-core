@@ -27,6 +27,11 @@ public class UserController {
         return userService.findById(id);
     }
 
+    @GetMapping("/waiters")
+    public ResponseEntity<Message> getAllWaiters() {
+        return userService.getAllWaiters();
+    }
+
     @PostMapping
     public ResponseEntity<Message> createUser(@RequestBody UserDTO userDTO) {
         return userService.create(userDTO);

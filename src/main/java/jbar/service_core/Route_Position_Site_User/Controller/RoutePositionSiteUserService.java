@@ -20,8 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -69,6 +73,60 @@ public class RoutePositionSiteUserService {
         return new ResponseEntity<>(new Message(null, "RoutePositionSiteUser not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findByPositionSiteId(Integer positionSiteId) {
+        List<RoutePositionSiteUser> entities = repository.findByPositionSite_PositionSiteId(positionSiteId);
+        log.info("Found {} RoutePositionSiteUsers for positionSiteId {}", entities.size(), positionSiteId);
+        return ResponseEntity.ok(new Message(entities, "RoutePositionSiteUsers found", TypesResponse.SUCCESS));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findByUserId(Integer userId) {
+        List<RoutePositionSiteUser> entities = repository.findByUser_UserId(userId);
+        log.info("Found {} RoutePositionSiteUsers for userId {}", entities.size(), userId);
+        return ResponseEntity.ok(new Message(entities, "RoutePositionSiteUsers found", TypesResponse.SUCCESS));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findAssignedPositionsForWaiter(Integer userId) {
+        log.info("Buscando posiciones para el usuario ID: {}", userId);
+        
+        List<RoutePositionSiteUser> assignments = repository.findByUser_UserIdAndDeletedAtIsNull(userId);
+        log.info("Asignaciones encontradas: {}", assignments.size());
+        
+        List<Map<String, Object>> positionsData = new ArrayList<>();
+        
+        for (RoutePositionSiteUser assignment : assignments) {
+            log.info("Procesando asignación ID: {}", assignment.getId());
+            log.info("PositionSite ID de la asignación: {}", assignment.getPositionSite().getPositionSiteId());
+            
+            Optional<PositionSite> positionSite = positionSiteRepository.findById(assignment.getPositionSite().getPositionSiteId());
+            if (positionSite.isPresent()) {
+                log.info("PositionSite encontrado: {}", positionSite.get());
+                if (positionSite.get().getDeletedAt() == null) {
+                    log.info("PositionSite válido, agregando a la lista");
+                    PositionSite ps = positionSite.get();
+                    Map<String, Object> positionData = new HashMap<>();
+                    positionData.put("position_siteId", ps.getPositionSiteId());
+                    positionData.put("positionId", ps.getPosition().getPositionId());
+                    positionData.put("siteId", ps.getSite().getSiteId());
+                    positionData.put("capacity", ps.getCapacity());
+                    positionData.put("xLocation", ps.getXLocation());
+                    positionData.put("yLocation", ps.getYLocation());
+                    positionData.put("status", ps.getStatus());
+                    positionsData.add(positionData);
+                } else {
+                    log.info("PositionSite eliminado, saltando");
+                }
+            } else {
+                log.warn("PositionSite no encontrado para ID: {}", assignment.getPositionSite().getPositionSiteId());
+            }
+        }
+        
+        log.info("Total de posiciones encontradas: {}", positionsData.size());
+        return ResponseEntity.ok(new Message(positionsData, "Posiciones asignadas encontradas", TypesResponse.SUCCESS));
+    }
+
     /**
      * 🔹 Crear una nueva relación Route-PositionSite-User
      */
@@ -103,7 +161,7 @@ public class RoutePositionSiteUserService {
             RoutePositionSiteUser entity = new RoutePositionSiteUser();
             entity.setRoute(route.get());
             entity.setPositionSite(positionSite.get());
-            entity.setUserId(user.get()); // 🔹 Ahora asignamos correctamente el usuario
+            entity.setUser(user.get());
             entity.setCreatedAt(LocalDateTime.now());
 
             // Guardar la entidad
@@ -126,19 +184,36 @@ public class RoutePositionSiteUserService {
         if (existingEntity.isPresent()) {
             RoutePositionSiteUser entity = existingEntity.get();
 
+            // Verificar que la ruta existe
             Optional<Route> route = routeRepository.findById(dto.getRouteId());
-            Optional<PositionSite> positionSite = positionSiteRepository.findById(dto.getPositionSiteId());
-            Optional<User> user = userRepository.findById(dto.getUserId());
-
-            if (route.isEmpty() || positionSite.isEmpty() || user.isEmpty()) {
-                log.warn("One or more entities not found for RoutePositionSiteUser update");
-                return new ResponseEntity<>(new Message(null, "Invalid data provided", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            if (route.isEmpty()) {
+                log.warn("Route with ID {} not found", dto.getRouteId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new Message(null, "Route not found", TypesResponse.ERROR));
             }
 
+            // Verificar que el sitio de posición existe
+            Optional<PositionSite> positionSite = positionSiteRepository.findById(dto.getPositionSiteId());
+            if (positionSite.isEmpty()) {
+                log.warn("PositionSite with ID {} not found", dto.getPositionSiteId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new Message(null, "PositionSite not found", TypesResponse.ERROR));
+            }
+
+            // Verificar que el usuario existe
+            Optional<User> user = userRepository.findById(dto.getUserId());
+            if (user.isEmpty()) {
+                log.warn("User with ID {} not found", dto.getUserId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new Message(null, "User not found", TypesResponse.ERROR));
+            }
+
+            // Actualizar las relaciones
             entity.setRoute(route.get());
             entity.setPositionSite(positionSite.get());
-            entity.setUserId(user.get());
+            entity.setUser(user.get());
             entity.setUpdatedAt(LocalDateTime.now());
+
             repository.saveAndFlush(entity);
 
             log.info("RoutePositionSiteUser with id {} updated successfully", id);

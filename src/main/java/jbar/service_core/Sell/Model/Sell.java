@@ -27,6 +27,9 @@ public class Sell {
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
+    @Column(name = "position_site_id", nullable = true)
+    private Integer positionSiteId;
+
     @Column(name = "sell_date", nullable = false)
     private Timestamp sellDate;  // Usamos java.sql.Timestamp para la fecha y hora completas
 
@@ -35,6 +38,9 @@ public class Sell {
 
     @Column(name = "status", nullable = false)
     private Boolean status = true;
+
+    @Column(name = "token_status", nullable = false)
+    private Boolean tokenStatus = true;  // true = puede ser usado para puntuación, false = ya fue puntuado
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());  // Timestamp actual
@@ -62,13 +68,15 @@ public class Sell {
     public Sell() {
     }
 
-    public Sell(Integer sellId, User user, Double totalPrice, Timestamp sellDate, Time sellTime, Boolean status, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt, List<RatingUserSell> ratings, List<SellDetail> sellDetails) {
+    public Sell(Integer sellId, User user, Double totalPrice, Integer position_site_id, Timestamp sellDate, Time sellTime, Boolean status, Boolean tokenStatus, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt, List<RatingUserSell> ratings, List<SellDetail> sellDetails) {
         this.sellId = sellId;
         this.user = user;
         this.totalPrice = totalPrice;
+        this.positionSiteId = position_site_id;
         this.sellDate = sellDate;
         this.sellTime = sellTime;
         this.status = status;
+        this.tokenStatus = tokenStatus;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -99,6 +107,15 @@ public class Sell {
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
+
+    public Integer getPositionSiteId() {
+        return positionSiteId;
+    }
+
+    public void setPositionSiteId(Integer positionSiteId) {
+        this.positionSiteId = positionSiteId;
+    }
+
     public Time getSellTime() {
         return sellTime;
     }
@@ -113,6 +130,14 @@ public class Sell {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public Boolean getTokenStatus() {
+        return tokenStatus;
+    }
+
+    public void setTokenStatus(Boolean tokenStatus) {
+        this.tokenStatus = tokenStatus;
     }
 
     public Timestamp getSellDate() {

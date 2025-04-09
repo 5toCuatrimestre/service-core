@@ -55,6 +55,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public ResponseEntity<Message> getAllWaiters() {
+        List<User> waiters = userRepository.findByRol(Rol.WAITER);
+        log.info("Retrieved {} waiters", waiters.size());
+        return new ResponseEntity<>(new Message(waiters, "Waiters retrieved successfully", TypesResponse.SUCCESS), HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> getAllUsersByRol(Rol rol) {
         List<User> users = userRepository.findByRol(rol);
         return new ResponseEntity<>(new Message(users, "Users found by role", TypesResponse.SUCCESS), HttpStatus.OK);

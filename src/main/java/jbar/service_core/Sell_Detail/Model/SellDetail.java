@@ -1,5 +1,6 @@
 package jbar.service_core.Sell_Detail.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Product.Model.Product;
@@ -14,10 +15,12 @@ public class SellDetail {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sell_id", nullable = false)
+    @JsonIgnore
     private Sell sell;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
 
     @Column(name = "quantity", nullable = false)

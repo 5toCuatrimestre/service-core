@@ -10,17 +10,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SellDetailRepository extends JpaRepository<SellDetail, Integer> {
-    @Query(value = """
-    SELECT p.name AS name, SUM(sd.quantity) AS ventas
-    FROM sell_detail sd
-    JOIN product p ON sd.product_id = p.product_id
-    JOIN sell s ON sd.sell_id = s.sell_id
-    WHERE s.sell_date BETWEEN :startDate AND :endDate 
-      AND s.status = true 
-      AND sd.status = true
-    GROUP BY p.name
-    ORDER BY ventas DESC
-    """, nativeQuery = true)
-List<Object[]> findTopSellingProducts(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
+    @Query("SELECT p.name as productName, SUM(sd.quantity) as totalQuantity " +
+           "FROM SellDetail sd " +
+           "JOIN sd.product p " +
+           "WHERE sd.sell.sellDate BETWEEN :startDate AND :endDate " +
+           "AND sd.deletedAt IS NULL " +
+           "GROUP BY p.name " +
+           "ORDER BY totalQuantity DESC")
+    List<Object[]> findTopSellingProducts(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
 
+    List<SellDetail> findBySell_SellIdAndDeletedAtIsNull(Integer sellId);
 }
