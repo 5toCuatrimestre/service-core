@@ -39,6 +39,9 @@ public class Sell {
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @Column(name = "token_status", nullable = false)
+    private Boolean tokenStatus = true;  // true = puede ser usado para puntuación, false = ya fue puntuado
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());  // Timestamp actual
 
@@ -65,7 +68,7 @@ public class Sell {
     public Sell() {
     }
 
-    public Sell(Integer sellId, User user, Double totalPrice, Integer position_site_id, Timestamp sellDate, Time sellTime, Boolean status, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt, List<RatingUserSell> ratings, List<SellDetail> sellDetails) {
+    public Sell(Integer sellId, User user, Double totalPrice, Integer position_site_id, Timestamp sellDate, Time sellTime, Boolean status, Boolean tokenStatus, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt, List<RatingUserSell> ratings, List<SellDetail> sellDetails) {
         this.sellId = sellId;
         this.user = user;
         this.totalPrice = totalPrice;
@@ -73,6 +76,7 @@ public class Sell {
         this.sellDate = sellDate;
         this.sellTime = sellTime;
         this.status = status;
+        this.tokenStatus = tokenStatus;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -126,6 +130,14 @@ public class Sell {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public Boolean getTokenStatus() {
+        return tokenStatus;
+    }
+
+    public void setTokenStatus(Boolean tokenStatus) {
+        this.tokenStatus = tokenStatus;
     }
 
     public Timestamp getSellDate() {

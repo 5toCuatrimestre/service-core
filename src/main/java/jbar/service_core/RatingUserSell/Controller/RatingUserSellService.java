@@ -3,6 +3,7 @@ package jbar.service_core.RatingUserSell.Controller;
 import jbar.service_core.RatingUserSell.Model.RatingUserSell;
 import jbar.service_core.RatingUserSell.Model.RatingUserSellDTO;
 import jbar.service_core.RatingUserSell.Model.RatingUserSellRepository;
+import jbar.service_core.RatingUserSell.Model.RatingResponseDTO;
 import jbar.service_core.RatingUserSell.Model.WaiterRatingChartDTO;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Sell.Model.SellRepository;
@@ -64,27 +65,43 @@ public class RatingUserSellService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Message> create(RatingUserSellDTO ratingDTO) {
-        Optional<User> user = userRepository.findById(ratingDTO.getUserId());
-        if (user.isEmpty()) {
-            log.warn("User with id {} not found", ratingDTO.getUserId());
-            return new ResponseEntity<>(new Message(null, "User not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        try {
+            Optional<Sell> sell = sellRepository.findById(ratingDTO.getSellId());
+            if (sell.isEmpty()) {
+                log.warn("Sell with id {} not found", ratingDTO.getSellId());
+                return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+            }
+
+            if (!sell.get().getTokenStatus()) {
+                log.warn("Sell with id {} has already been rated", ratingDTO.getSellId());
+                return new ResponseEntity<>(new Message(null, "La venta ya se calificó", TypesResponse.ERROR), HttpStatus.BAD_REQUEST);
+            }
+
+            // La calificación siempre va al usuario que realizó la venta
+            RatingUserSell ratingUserSell = new RatingUserSell();
+            ratingUserSell.setUser(sell.get().getUser()); // Usuario que realizó la venta
+            ratingUserSell.setSell(sell.get());
+            ratingUserSell.setStars(ratingDTO.getStars());
+
+            sell.get().setTokenStatus(false);
+            sellRepository.save(sell.get());
+
+            RatingUserSell savedRating = ratingUserSellRepository.save(ratingUserSell);
+            
+            // Crear DTO de respuesta
+            RatingResponseDTO responseDTO = new RatingResponseDTO(
+                savedRating.getRatingUserSellId(),
+                savedRating.getUser().getUserId(),
+                savedRating.getUser().getName(),
+                savedRating.getSell().getSellId(),
+                savedRating.getStars()
+            );
+            
+            return new ResponseEntity<>(new Message(responseDTO, "Rating created", TypesResponse.SUCCESS), HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error("Error creating rating: {}", e.getMessage());
+            return new ResponseEntity<>(new Message(null, "Error creating rating: " + e.getMessage(), TypesResponse.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        Optional<Sell> sell = sellRepository.findById(ratingDTO.getSellId());
-        if (sell.isEmpty()) {
-            log.warn("Sell with id {} not found", ratingDTO.getSellId());
-            return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
-        }
-
-        RatingUserSell ratingUserSell = new RatingUserSell();
-        ratingUserSell.setUser(user.get());
-        ratingUserSell.setSell(sell.get());
-        ratingUserSell.setStars(ratingDTO.getStars());
-
-        ratingUserSellRepository.save(ratingUserSell);
-        log.info("Rating created successfully: {}", ratingUserSell);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Message(ratingUserSell, "Rating created", TypesResponse.SUCCESS));
     }
 
     @Transactional(readOnly = true)

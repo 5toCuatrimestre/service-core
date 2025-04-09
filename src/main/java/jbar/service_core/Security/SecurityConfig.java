@@ -19,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.http.HttpMethod;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -40,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permite peticiones OPTIONS
                         .requestMatchers(
+                                "/auth/admin/login",
                                 "/auth/login",
                                 "/api/v1/auth/**",
                                 "/v2/api-docs",
@@ -54,7 +56,9 @@ public class SecurityConfig {
                                 "/api/test/**",
                                 "/authenticate",
                                 "/email/send-reset-code",
-                                "/style/all"
+                                "/style/all",
+                                "/sell/ticket/**",
+                                "/rating-user-sell/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -67,12 +71,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8081",
-                "http://localhost:3000",
-                "http://localhost:8080",
-                "http://localhost:5000" // Add if your frontend makes requests to this port
-        ));
+        configuration.setAllowedOriginPatterns(Collections.singletonList("*")); // Permite cualquier origen
         configuration.setAllowedMethods(Arrays.asList(
                 "GET",
                 "POST",

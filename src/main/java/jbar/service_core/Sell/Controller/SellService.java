@@ -5,6 +5,12 @@ import jbar.service_core.Sell.Model.SalesTimeChartDTO;
 import jbar.service_core.Sell.Model.Sell;
 import jbar.service_core.Sell.Model.SellDTO;
 import jbar.service_core.Sell.Model.SellRepository;
+import jbar.service_core.Sell.Model.TicketDTO;
+import jbar.service_core.Sell.Model.TicketItemDTO;
+import jbar.service_core.Sell_Detail.Model.SellDetail;
+import jbar.service_core.Sell_Detail.Model.SellDetailRepository;
+import jbar.service_core.Product.Model.Product;
+import jbar.service_core.Product.Model.ProductRepository;
 import jbar.service_core.User.Model.User;
 import jbar.service_core.User.Model.UserRepository;
 import jbar.service_core.Util.Response.Message;
@@ -21,6 +27,7 @@ import java.sql.Timestamp; // Usamos Timestamp para manejar fechas con hora
 import java.sql.Time; // Usamos Time para manejar solo la hora
 import java.util.*;
 import java.util.stream.Collectors;
+import java.text.SimpleDateFormat;
 
 @Service
 @Transactional
@@ -28,11 +35,15 @@ public class SellService {
     private final Logger log = LoggerFactory.getLogger(SellService.class);
     private final SellRepository sellRepository;
     private final UserRepository userRepository;
+    private final SellDetailRepository sellDetailRepository;
+    private final ProductRepository productRepository;
 
     @Autowired
-    public SellService(SellRepository sellRepository, UserRepository userRepository) {
+    public SellService(SellRepository sellRepository, UserRepository userRepository, SellDetailRepository sellDetailRepository, ProductRepository productRepository) {
         this.sellRepository = sellRepository;
         this.userRepository = userRepository;
+        this.sellDetailRepository = sellDetailRepository;
+        this.productRepository = productRepository;
     }
 
     // Obtener todas las ventas
@@ -141,6 +152,8 @@ public class SellService {
         Optional<Sell> sell = sellRepository.findById(id);
         if (sell.isPresent()) {
             Sell existingSell = sell.get();
+            
+            existingSell.setTokenStatus(true);
             existingSell.setStatus(false);
             existingSell.setDeletedAt(new Timestamp(System.currentTimeMillis()));                                 
 
@@ -249,6 +262,63 @@ public class SellService {
 
         return new ResponseEntity<>(new Message(chartData, "Average sales per hour retrieved", TypesResponse.SUCCESS),
                 HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> generateTicket(Integer sellId) {
+        Optional<Sell> sellOpt = sellRepository.findById(sellId);
+        if (sellOpt.isEmpty()) {
+            return new ResponseEntity<>(new Message(null, "Venta no encontrada", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+
+        Sell sell = sellOpt.get();
+        
+        // Obtener los detalles de la venta
+        List<SellDetail> sellDetails = sellDetailRepository.findBySell_SellIdAndDeletedAtIsNull(sellId);
+        if (sellDetails.isEmpty()) {
+            return new ResponseEntity<>(new Message(null, "No hay detalles para esta venta", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
+        }
+
+        // Crear lista de items para el ticket
+        List<TicketItemDTO> ticketItems = new ArrayList<>();
+        double totalAmount = 0.0;
+        
+        for (SellDetail detail : sellDetails) {
+            Optional<Product> productOpt = productRepository.findById(detail.getProduct().getProductId());
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                double subtotal = detail.getQuantity() * detail.getUnitPrice();
+                totalAmount += subtotal;
+                
+                ticketItems.add(new TicketItemDTO(
+                    product.getName(),
+                    detail.getQuantity(),
+                    detail.getUnitPrice(),
+                    subtotal
+                ));
+            }
+        }
+
+        // Calcular subtotal (total - 16%)
+        double subtotal = totalAmount / 1.16;
+        
+        // Formatear fecha y hora
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        
+        // Crear el ticket
+        TicketDTO ticket = new TicketDTO(
+            "TKT-" + sellId,
+            dateFormat.format(sell.getSellDate()),
+            timeFormat.format(sell.getSellTime()),
+            sell.getUser().getName(),
+            "Mesa " + sell.getPositionSiteId(),
+            ticketItems,
+            subtotal,
+            totalAmount
+        );
+
+        return new ResponseEntity<>(new Message(ticket, "Ticket generado correctamente", TypesResponse.SUCCESS), HttpStatus.OK);
     }
 
 }
