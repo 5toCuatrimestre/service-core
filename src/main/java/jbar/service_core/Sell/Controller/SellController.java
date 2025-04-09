@@ -196,4 +196,9 @@ public class SellController {
         }
     }
 
+    @GetMapping("/ticket/{sellId}")
+    public ResponseEntity<Message> generateTicket(@PathVariable Integer sellId) {
+        return sellService.generateTicket(sellId);
+    }
+
 }
