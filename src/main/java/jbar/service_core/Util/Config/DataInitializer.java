@@ -85,22 +85,21 @@ public class DataInitializer {
             System.out.println("Data Initialization complete.");
         };
     }
-
     // Método para inicializar usuarios
     private void initializeUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         User[] users = new User[] {
-                new User("Isaac", "lastname", "20233tn182@utez.edu.mx", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "555-1001", new Date(2025, 01, 22)),
-                new User("Daniel", "lastname", "admin2@example.com", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "555-1002", new Date(2025, 01, 22)),
-                new User("Alexis", "lastname", "admin4@example.com", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "555-1004", new Date(2025, 01, 22)),
-                new User("Alicia", "lastname", "admin3@example.com", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "555-1003", new Date(2025, 01, 22)),
-                new User("Isaac", "lastname", "leader1@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "555-2001", new Date(2025, 01, 22)),
-                new User("Daniel", "lastname", "leader2@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "555-2002", new Date(2025, 01, 22)),
-                new User("Alexis", "lastname", "leader3@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "555-2003", new Date(2025, 01, 22)),
-                new User("Alicia", "lastname", "leader4@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "555-2004", new Date(2025, 01, 22)),
-                new User("Isaac", "lastname", "waiter1@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "555-3001", new Date(2025, 01, 22)),
-                new User("Daniel", "lastname", "waiter2@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "555-3002", new Date(2025, 01, 22)),
-                new User("Alexis", "lastname", "waiter3@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "555-3003", new Date(2025, 01, 22)),
-                new User("Alicia", "lastname", "waiter4@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "555-3004", new Date(2025, 01, 22))
+                new User("Isaac", "lastname", "20233tn182@utez.edu.mx", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "7773280963", new Date(2025, 01, 22)),
+                new User("Daniel", "lastname", "admin2@example.com", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "7773280964", new Date(2025, 01, 22)),
+                new User("Alexis", "lastname", "admin4@example.com", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "7773280962", new Date(2025, 01, 22)),
+                new User("Alicia", "lastname", "admin3@example.com", passwordEncoder.encode("admin123"), Status.ACTIVE, Rol.ADMIN, "7773280961", new Date(2025, 01, 22)),
+                new User("Isaac", "lastname", "leader1@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "7773280965", new Date(2025, 01, 22)),
+                new User("Daniel", "lastname", "leader2@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "7773280966", new Date(2025, 01, 22)),
+                new User("Alexis", "lastname", "leader3@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "7773280967", new Date(2025, 01, 22)),
+                new User("Alicia", "lastname", "leader4@example.com", passwordEncoder.encode("leader123"), Status.ACTIVE, Rol.LEADER, "7773280968", new Date(2025, 01, 22)),
+                new User("Isaac", "lastname", "waiter1@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "7773280969", new Date(2025, 01, 22)),
+                new User("Daniel", "lastname", "waiter2@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "7773280970", new Date(2025, 01, 22)),
+                new User("Alexis", "lastname", "waiter3@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "7773280971", new Date(2025, 01, 22)),
+                new User("Alicia", "lastname", "waiter4@example.com", passwordEncoder.encode("waiter123"), Status.ACTIVE, Rol.WAITER, "7773280972", new Date(2025, 01, 22))
         };
 
         for (User user : users) {
