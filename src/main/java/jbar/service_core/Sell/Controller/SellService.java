@@ -141,18 +141,12 @@ public class SellService {
         Optional<Sell> sell = sellRepository.findById(id);
         if (sell.isPresent()) {
             Sell existingSell = sell.get();
-            if (existingSell.getStatus()) {
-                existingSell.setStatus(false);
-                existingSell.setDeletedAt(new Timestamp(System.currentTimeMillis())); // Establecer fecha y hora
-                                                                                      // actuales
-            } else {
-                existingSell.setStatus(true);
-                existingSell.setDeletedAt(null);
-            }
+            existingSell.setStatus(false);
+            existingSell.setDeletedAt(new Timestamp(System.currentTimeMillis()));                                 
 
             sellRepository.save(existingSell);
             log.info("Sell with id {} status changed", id);
-            return new ResponseEntity<>(new Message(null, "Sell status changed", TypesResponse.SUCCESS), HttpStatus.OK);
+            return new ResponseEntity<>(new Message(null, "Sell status changed to false", TypesResponse.SUCCESS), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Message(null, "Sell not found", TypesResponse.ERROR), HttpStatus.NOT_FOUND);
         }
